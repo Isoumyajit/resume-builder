@@ -1,0 +1,37 @@
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Keyboard shortcut styling */
+kbd {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* PDF canvas styling */
+.react-pdf__Page__canvas {
+  border-radius: 4px;
+}
+
+/* Form focus states */
+input:focus,
+textarea:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #3b82f6;
+}
