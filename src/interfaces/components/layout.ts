@@ -2,10 +2,11 @@
  * Component prop interfaces for Layout components
  */
 
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { UseFormReturn, UseFieldArrayReturn } from "react-hook-form";
 import type { ResumeFormData } from "@/lib/validation";
 import type { useResumeBuilder } from "@/hooks/useResumeBuilder";
+import type { LucideIcon } from "lucide-react";
 
 // Header component props
 export interface HeaderProps {
@@ -54,4 +55,11 @@ export type ResumeBuilderState = ReturnType<typeof useResumeBuilder>;
 
 export interface ResumeBuilderLayoutProps {
   state: ResumeBuilderState;
+}
+
+export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  icon: LucideIcon;
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "ghost" | "outline";
+  className?: string;
 }

@@ -8,7 +8,7 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
   const { form, pdf, actions } = state;
 
   return (
-    <div className="rb-app h-screen flex flex-col bg-gray-50">
+    <div className="rb-app h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header
         onDownload={actions.downloadPdf}
         canDownload={!!pdf.url}

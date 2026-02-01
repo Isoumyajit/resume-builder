@@ -34,6 +34,7 @@ export type {
   PreviewPanelProps,
   ResumeBuilderLayoutProps,
   ResumeBuilderState,
+  IconButtonProps,
   // Preview components
   PdfPreviewProps,
 } from "./components";
