@@ -21,6 +21,7 @@ export type {
   PreviewPanelProps,
   ResumeBuilderLayoutProps,
   ResumeBuilderState,
+  IconButtonProps,
 } from "./layout";
 
 export type {
