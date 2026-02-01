@@ -2,13 +2,7 @@ import { Header } from "./Header";
 import { SplitPane } from "./SplitPane";
 import { ResumeFormPanel } from "./ResumeFormPanel";
 import { PreviewPanel } from "./PreviewPanel";
-import type { useResumeBuilder } from "@/hooks/useResumeBuilder";
-
-type ResumeBuilderState = ReturnType<typeof useResumeBuilder>;
-
-interface ResumeBuilderLayoutProps {
-  state: ResumeBuilderState;
-}
+import type { ResumeBuilderLayoutProps } from "@/interfaces/components";
 
 export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
   const { form, pdf, actions } = state;
@@ -34,6 +28,7 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
               addProject={form.handlers.addProject}
               addBullet={form.handlers.addBullet}
               removeBullet={form.handlers.removeBullet}
+              toggleCurrentlyWorking={form.handlers.toggleCurrentlyWorking}
               onGenerate={actions.generatePdf}
               isGenerating={pdf.isLoading}
             />

@@ -1,14 +1,12 @@
-import type { UseFormReturn } from "react-hook-form";
 import { Textarea } from "../ui/textarea";
 import { FormSection, FormField } from "./FormSection";
-import type { ResumeFormData } from "@/lib/validation";
+import type { SkillsFormProps } from "@/interfaces/components";
 
-interface Props {
-  form: UseFormReturn<ResumeFormData>;
-}
-
-export function SkillsForm({ form }: Props) {
-  const { register, formState: { errors } } = form;
+export function SkillsForm({ form }: SkillsFormProps) {
+  const {
+    register,
+    formState: { errors },
+  } = form;
 
   return (
     <FormSection title="Technical Skills">

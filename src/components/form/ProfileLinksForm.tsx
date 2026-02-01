@@ -1,15 +1,13 @@
-import type { UseFormReturn } from "react-hook-form";
 import { Github, Globe, Code2 } from "lucide-react";
 import { Input } from "../ui/input";
 import { FormSection, FormRow, FormField } from "./FormSection";
-import type { ResumeFormData } from "@/lib/validation";
+import type { ProfileLinksFormProps } from "@/interfaces/components";
 
-interface Props {
-  form: UseFormReturn<ResumeFormData>;
-}
-
-export function ProfileLinksForm({ form }: Props) {
-  const { register, formState: { errors } } = form;
+export function ProfileLinksForm({ form }: ProfileLinksFormProps) {
+  const {
+    register,
+    formState: { errors },
+  } = form;
 
   return (
     <FormSection title="Profile Links">

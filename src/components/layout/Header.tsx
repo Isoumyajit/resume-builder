@@ -1,11 +1,6 @@
 import { FileText, Download, Github } from "lucide-react";
 import { Button } from "../ui/button";
-
-interface HeaderProps {
-  onDownload: () => void;
-  canDownload: boolean;
-  isGenerating: boolean;
-}
+import type { HeaderProps } from "@/interfaces/components";
 
 export function Header({ onDownload, canDownload, isGenerating }: HeaderProps) {
   return (
@@ -16,7 +11,9 @@ export function Header({ onDownload, canDownload, isGenerating }: HeaderProps) {
             <FileText className="h-6 w-6 text-white" />
           </div>
           <div className="rb-header__info">
-            <h1 className="rb-header__title text-xl font-bold text-gray-900">Resume Builder</h1>
+            <h1 className="rb-header__title text-xl font-bold text-gray-900">
+              Resume Builder
+            </h1>
             <p className="rb-header__subtitle text-sm text-gray-500">
               Create professional resumes with LaTeX quality
             </p>
@@ -36,7 +33,7 @@ export function Header({ onDownload, canDownload, isGenerating }: HeaderProps) {
           <Button
             onClick={onDownload}
             disabled={!canDownload || isGenerating}
-            className="rb-header__download-button gap-2"
+            className="rb-header__download-button gap-2 cursor-pointer"
           >
             <Download className="h-4 w-4" />
             Download PDF

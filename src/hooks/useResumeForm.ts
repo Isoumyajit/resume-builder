@@ -36,7 +36,6 @@ export function useResumeForm() {
     mode: "onChange",
   });
 
-  // Field arrays for dynamic sections
   const experienceArray = useFieldArray({
     control: form.control,
     name: "experience",
@@ -52,7 +51,6 @@ export function useResumeForm() {
     name: "projects",
   });
 
-  // Helper functions to add new items
   const addExperience = () => {
     experienceArray.append({
       id: nanoid(),
@@ -63,6 +61,7 @@ export function useResumeForm() {
       endDate: "",
       techStack: "",
       bullets: [""],
+      currentlyWorking: false,
     });
   };
 
@@ -87,20 +86,41 @@ export function useResumeForm() {
     });
   };
 
-  // Add a bullet point to a specific experience
   const addBullet = (experienceIndex: number) => {
-    const currentBullets = form.getValues(`experience.${experienceIndex}.bullets`);
-    form.setValue(`experience.${experienceIndex}.bullets`, [...currentBullets, ""]);
+    const currentBullets = form.getValues(
+      `experience.${experienceIndex}.bullets`,
+    );
+    form.setValue(`experience.${experienceIndex}.bullets`, [
+      ...currentBullets,
+      "",
+    ]);
   };
 
-  // Remove a bullet point from a specific experience
   const removeBullet = (experienceIndex: number, bulletIndex: number) => {
-    const currentBullets = form.getValues(`experience.${experienceIndex}.bullets`);
+    const currentBullets = form.getValues(
+      `experience.${experienceIndex}.bullets`,
+    );
     if (currentBullets.length > 1) {
       form.setValue(
         `experience.${experienceIndex}.bullets`,
-        currentBullets.filter((_, i) => i !== bulletIndex)
+        currentBullets.filter((_, i) => i !== bulletIndex),
       );
+    }
+  };
+
+  const toggleCurrentlyWorking = (
+    experienceIndex: number,
+    isCurrentlyWorking: boolean,
+  ) => {
+    form.setValue(
+      `experience.${experienceIndex}.currentlyWorking`,
+      isCurrentlyWorking,
+    );
+
+    if (isCurrentlyWorking) {
+      form.setValue(`experience.${experienceIndex}.endDate`, "Present");
+    } else {
+      form.setValue(`experience.${experienceIndex}.endDate`, "");
     }
   };
 
@@ -114,5 +134,6 @@ export function useResumeForm() {
     addProject,
     addBullet,
     removeBullet,
+    toggleCurrentlyWorking,
   };
 }
