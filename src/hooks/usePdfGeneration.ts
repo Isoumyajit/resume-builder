@@ -15,6 +15,7 @@ export function usePdfGeneration() {
 
       try {
         const blob = await generatePdf(data);
+        console.log("blob", blob);
 
         // Revoke previous URL to prevent memory leak
         if (pdfUrl) {
