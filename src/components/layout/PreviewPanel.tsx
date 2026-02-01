@@ -1,10 +1,5 @@
 import { PdfPreview } from "@/components/preview";
-
-interface PreviewPanelProps {
-  pdfUrl: string | null;
-  isLoading: boolean;
-  error: string | null;
-}
+import type { PreviewPanelProps } from "@/interfaces/components";
 
 export function PreviewPanel({ pdfUrl, isLoading, error }: PreviewPanelProps) {
   return (

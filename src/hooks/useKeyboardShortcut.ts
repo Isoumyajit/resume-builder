@@ -1,23 +1,17 @@
 import { useEffect, useCallback } from "react";
-
-interface ShortcutOptions {
-  ctrl?: boolean;
-  meta?: boolean;
-  shift?: boolean;
-  alt?: boolean;
-}
+import type { ShortcutOptions } from "@/interfaces/hooks";
 
 export function useKeyboardShortcut(
   key: string,
   callback: () => void,
-  options: ShortcutOptions = {}
+  options: ShortcutOptions = {},
 ) {
   const { ctrl = false, meta = false, shift = false, alt = false } = options;
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       const keyMatch = event.key.toLowerCase() === key.toLowerCase();
-      
+
       // Check if Ctrl or Meta (Cmd on Mac) is required
       const ctrlMatch = ctrl ? event.ctrlKey : true;
       const metaMatch = meta ? event.metaKey : true;
@@ -43,7 +37,7 @@ export function useKeyboardShortcut(
         callback();
       }
     },
-    [key, callback, ctrl, meta, shift, alt]
+    [key, callback, ctrl, meta, shift, alt],
   );
 
   useEffect(() => {

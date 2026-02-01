@@ -19,16 +19,17 @@ export function useResumeBuilder() {
     addProject,
     addBullet,
     removeBullet,
+    toggleCurrentlyWorking,
   } = useResumeForm();
 
   // PDF generation state and handlers
-  const { pdfUrl, isLoading, error, generate, downloadPdf } = usePdfGeneration();
+  const { pdfUrl, isLoading, error, generate, downloadPdf } =
+    usePdfGeneration();
 
   // Handle PDF generation from form data
   const handleGenerate = useCallback(() => {
-    form.handleSubmit((data) => {
-      generate(data);
-    })();
+    console.log("Generating PDF", form.formState.errors);
+    form.handleSubmit((data) => generate(data))();
   }, [form, generate]);
 
   // Register keyboard shortcut (Ctrl+S)
@@ -47,6 +48,7 @@ export function useResumeBuilder() {
         addProject,
         addBullet,
         removeBullet,
+        toggleCurrentlyWorking,
       },
     },
     // PDF props

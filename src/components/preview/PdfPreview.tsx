@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import { Loader2, FileText, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Loader2,
+  FileText,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "../ui/button";
+import type { PdfPreviewProps } from "@/interfaces/components";
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
-interface PdfPreviewProps {
-  pdfUrl: string | null;
-  isLoading: boolean;
-  error: string | null;
-}
 
 export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -40,7 +41,9 @@ export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
     return (
       <div className="rb-pdf-preview__loading flex flex-col items-center justify-center h-full text-gray-500">
         <Loader2 className="rb-pdf-preview__spinner h-12 w-12 animate-spin text-blue-500 mb-4" />
-        <p className="rb-pdf-preview__loading-text text-lg font-medium">Generating PDF...</p>
+        <p className="rb-pdf-preview__loading-text text-lg font-medium">
+          Generating PDF...
+        </p>
         <p className="rb-pdf-preview__loading-subtext text-sm text-gray-400 mt-1">
           Compiling LaTeX (this may take a few seconds)
         </p>
@@ -55,8 +58,12 @@ export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
         <div className="rb-pdf-preview__error-icon flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
           <AlertCircle className="h-8 w-8 text-red-500" />
         </div>
-        <p className="rb-pdf-preview__error-title text-lg font-medium text-red-600">Failed to generate PDF</p>
-        <p className="rb-pdf-preview__error-message text-sm text-gray-500 mt-1 max-w-md text-center">{error}</p>
+        <p className="rb-pdf-preview__error-title text-lg font-medium text-red-600">
+          Failed to generate PDF
+        </p>
+        <p className="rb-pdf-preview__error-message text-sm text-gray-500 mt-1 max-w-md text-center">
+          {error}
+        </p>
       </div>
     );
   }
@@ -68,13 +75,19 @@ export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
         <div className="rb-pdf-preview__empty-icon flex items-center justify-center h-20 w-20 rounded-full bg-gray-100 mb-4">
           <FileText className="h-10 w-10 text-gray-400" />
         </div>
-        <p className="rb-pdf-preview__empty-title text-lg font-medium text-gray-700">No Preview Yet</p>
+        <p className="rb-pdf-preview__empty-title text-lg font-medium text-gray-700">
+          No Preview Yet
+        </p>
         <p className="rb-pdf-preview__empty-message text-sm text-gray-500 mt-1">
           Fill in the form and press{" "}
-          <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">Ctrl</kbd>
+          <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">
+            Ctrl
+          </kbd>
           {" + "}
-          <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">S</kbd>
-          {" "}to generate
+          <kbd className="px-2 py-1 bg-gray-200 rounded text-xs font-mono">
+            S
+          </kbd>{" "}
+          to generate
         </p>
       </div>
     );
@@ -98,7 +111,9 @@ export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
             <div className="rb-pdf-preview__document-error flex flex-col items-center justify-center p-8 text-red-500">
               <AlertCircle className="h-8 w-8 mb-2" />
               <p>Failed to load PDF</p>
-              {pdfError && <p className="text-sm text-gray-500 mt-1">{pdfError}</p>}
+              {pdfError && (
+                <p className="text-sm text-gray-500 mt-1">{pdfError}</p>
+              )}
             </div>
           }
           className="rb-pdf-preview__document"
@@ -121,7 +136,7 @@ export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
             size="sm"
             onClick={goToPrevPage}
             disabled={pageNumber <= 1}
-            className="rb-pdf-preview__prev-page"
+            className="rb-pdf-preview__prev-page cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -133,7 +148,7 @@ export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
             size="sm"
             onClick={goToNextPage}
             disabled={pageNumber >= numPages}
-            className="rb-pdf-preview__next-page"
+            className="rb-pdf-preview__next-page cursor-pointer"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

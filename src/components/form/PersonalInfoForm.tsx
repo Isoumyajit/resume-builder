@@ -1,84 +1,85 @@
 import type { UseFormReturn } from "react-hook-form";
-import { Input } from "../ui/input";
-import { FormSection, FormRow, FormField } from "./FormSection";
+import { FormSection, FormRow, InputIconField } from "./FormSection";
 import type { ResumeFormData } from "@/lib/validation";
+import { Link2, Linkedin, Mail, MapPin, Phone, User } from "lucide-react";
 
 interface Props {
   form: UseFormReturn<ResumeFormData>;
 }
 
 export function PersonalInfoForm({ form }: Props) {
-  const { register, formState: { errors } } = form;
+  const {
+    register,
+    formState: { errors },
+  } = form;
 
   return (
     <FormSection title="Personal Information">
-      <div className="rb-personal-info-form">
-        <FormRow>
-        <FormField 
-          label="Full Name" 
+      <FormRow>
+        <InputIconField
+          label="Name"
           error={errors.personalInfo?.name?.message}
-        >
-          <Input
-            {...register("personalInfo.name")}
-            placeholder="John Doe"
-          />
-        </FormField>
-        <FormField 
+          icon={User}
+          inputProps={{
+            ...register("personalInfo.name"),
+            placeholder: "John Doe",
+          }}
+        />
+        <InputIconField
           label="Location"
           error={errors.personalInfo?.location?.message}
-        >
-          <Input
-            {...register("personalInfo.location")}
-            placeholder="San Francisco, CA"
-          />
-        </FormField>
+          icon={MapPin}
+          inputProps={{
+            ...register("personalInfo.location"),
+            placeholder: "San Francisco, CA",
+          }}
+        />
       </FormRow>
 
       <FormRow>
-        <FormField 
+        <InputIconField
           label="Phone"
           error={errors.personalInfo?.phone?.message}
-        >
-          <Input
-            {...register("personalInfo.phone")}
-            placeholder="+1 (555) 123-4567"
-          />
-        </FormField>
-        <FormField 
+          icon={Phone}
+          inputProps={{
+            ...register("personalInfo.phone"),
+            placeholder: "+1 (555) 123-4567",
+          }}
+        />
+        <InputIconField
           label="Email"
           error={errors.personalInfo?.email?.message}
-        >
-          <Input
-            type="email"
-            {...register("personalInfo.email")}
-            placeholder="john@example.com"
-          />
-        </FormField>
+          icon={Mail}
+          inputProps={{
+            ...register("personalInfo.email"),
+            type: "email",
+            placeholder: "john@example.com",
+          }}
+        />
       </FormRow>
 
       <FormRow>
-        <FormField 
-          label="LinkedIn URL" 
-          optional
+        <InputIconField
+          label="LinkedIn URL"
           error={errors.personalInfo?.linkedin?.url?.message}
-        >
-          <Input
-            {...register("personalInfo.linkedin.url")}
-            placeholder="https://linkedin.com/in/johndoe"
-          />
-        </FormField>
-        <FormField 
-          label="LinkedIn Display Text" 
           optional
+          icon={Link2}
+          inputProps={{
+            ...register("personalInfo.linkedin.url"),
+            placeholder: "https://linkedin.com/in/johndoe",
+          }}
+        />
+        <InputIconField
+          label="LinkedIn Display Text"
           error={errors.personalInfo?.linkedin?.displayText?.message}
-        >
-          <Input
-            {...register("personalInfo.linkedin.displayText")}
-            placeholder="johndoe"
-          />
-        </FormField>
+          optional
+          icon={Linkedin}
+          inputProps={{
+            ...register("personalInfo.linkedin.displayText"),
+            placeholder: "john-doe",
+          }}
+        />
       </FormRow>
-      </div>
     </FormSection>
   );
 }

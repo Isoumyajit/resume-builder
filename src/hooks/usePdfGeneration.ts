@@ -11,6 +11,7 @@ export function usePdfGeneration() {
     async (data: ResumeFormData) => {
       setIsLoading(true);
       setError(null);
+      console.log("Generating PDF", data);
 
       try {
         const blob = await generatePdf(data);
@@ -28,7 +29,7 @@ export function usePdfGeneration() {
         setIsLoading(false);
       }
     },
-    [pdfUrl]
+    [pdfUrl],
   );
 
   const downloadPdf = useCallback(() => {

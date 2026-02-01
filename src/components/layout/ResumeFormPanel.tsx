@@ -1,5 +1,3 @@
-import type { UseFormReturn, UseFieldArrayReturn } from "react-hook-form";
-import type { ResumeFormData } from "@/lib/validation";
 import {
   PersonalInfoForm,
   ExperienceForm,
@@ -8,20 +6,7 @@ import {
   ProfileLinksForm,
   SkillsForm,
 } from "@/components/form";
-
-interface ResumeFormPanelProps {
-  form: UseFormReturn<ResumeFormData>;
-  experienceArray: UseFieldArrayReturn<ResumeFormData, "experience">;
-  educationArray: UseFieldArrayReturn<ResumeFormData, "education">;
-  projectsArray: UseFieldArrayReturn<ResumeFormData, "projects">;
-  addExperience: () => void;
-  addEducation: () => void;
-  addProject: () => void;
-  addBullet: (experienceIndex: number) => void;
-  removeBullet: (experienceIndex: number, bulletIndex: number) => void;
-  onGenerate: () => void;
-  isGenerating: boolean;
-}
+import type { ResumeFormPanelProps } from "@/interfaces/components";
 
 export function ResumeFormPanel({
   form,
@@ -33,6 +18,7 @@ export function ResumeFormPanel({
   addProject,
   addBullet,
   removeBullet,
+  toggleCurrentlyWorking,
   onGenerate,
   isGenerating,
 }: ResumeFormPanelProps) {
@@ -46,6 +32,7 @@ export function ResumeFormPanel({
         onAddExperience={addExperience}
         onAddBullet={addBullet}
         onRemoveBullet={removeBullet}
+        onToggleCurrentlyWorking={toggleCurrentlyWorking}
       />
 
       <EducationForm
@@ -70,7 +57,7 @@ export function ResumeFormPanel({
           type="button"
           onClick={onGenerate}
           disabled={isGenerating}
-          className="rb-app__generate-button w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50"
+          className="rb-app__generate-button w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
         >
           {isGenerating ? "Generating..." : "Generate PDF"}
         </button>

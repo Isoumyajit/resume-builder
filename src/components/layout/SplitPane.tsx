@@ -1,18 +1,6 @@
-import { ReactNode } from "react";
-import {
-  Group,
-  Panel,
-  Separator,
-} from "react-resizable-panels";
+import { Group, Panel, Separator } from "react-resizable-panels";
 import { GripVertical } from "lucide-react";
-
-interface SplitPaneProps {
-  leftPanel: ReactNode;
-  rightPanel: ReactNode;
-  defaultLeftSize?: number;
-  minLeftSize?: number;
-  minRightSize?: number;
-}
+import type { SplitPaneProps } from "@/interfaces/components";
 
 export function SplitPane({
   leftPanel,
@@ -36,11 +24,11 @@ export function SplitPane({
           {leftPanel}
         </div>
       </Panel>
-      
+
       <Separator className="rb-split-pane__separator w-2 bg-gray-200 hover:bg-gray-300 transition-colors flex items-center justify-center">
         <GripVertical className="rb-split-pane__separator-icon h-4 w-4 text-gray-400" />
       </Separator>
-      
+
       <Panel
         id="right-panel"
         defaultSize={100 - defaultLeftSize}

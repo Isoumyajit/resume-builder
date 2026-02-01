@@ -1,105 +1,134 @@
-"use client"
-
-import * as React from "react"
-import { Calendar } from "@/components/ui/calendar"
-import { Field, FieldLabel } from "@/components/ui/field"
+import { Calendar } from "@/components/ui/calendar";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from "@/components/ui/input-group"
+} from "@/components/ui/input-group";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { CalendarIcon } from "lucide-react"
-
-function formatDate(date: Date | undefined) {
-  if (!date) {
-    return ""
-  }
-
-  return date.toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  })
-}
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import type { DatePickerProps } from "@/interfaces";
+import { useMemo, useState, type ComponentProps } from "react";
 
 function isValidDate(date: Date | undefined) {
   if (!date) {
-    return false
+    return false;
   }
-  return !isNaN(date.getTime())
+  return !isNaN(date.getTime());
 }
 
-export function DatePickerInput() {
-  const [open, setOpen] = React.useState(false)
-  const [date, setDate] = React.useState<Date | undefined>(
-    new Date("2025-06-01")
-  )
-  const [month, setMonth] = React.useState<Date | undefined>(date)
-  const [value, setValue] = React.useState(formatDate(date))
+export function DatePicker({
+  value = "",
+  onChange,
+  placeholder = "Select date",
+  disabled = false,
+  alignIcon = "inline-end",
+  icon: Icon = CalendarIcon,
+}: DatePickerProps) {
+  const [open, setOpen] = useState(false);
+
+  // Derive date from value prop instead of managing separate state
+  const selectedDate = useMemo(() => {
+    if (!value) return undefined;
+    const parsedDate = new Date(value);
+    return isValidDate(parsedDate) ? parsedDate : undefined;
+  }, [value]);
+
+  const handleDateSelect = (newDate: Date | undefined) => {
+    setOpen(false);
+
+    if (onChange) {
+      if (newDate) {
+        // Format as YYYY-MM for month/year inputs like "Jan 2022"
+        const month = newDate.toLocaleDateString("en-US", { month: "short" });
+        const year = newDate.getFullYear();
+        onChange(`${month} ${year}`);
+      } else {
+        onChange("");
+      }
+    }
+  };
 
   return (
-    <Field className="mx-auto w-48">
-      <FieldLabel htmlFor="date-required">Subscription Date</FieldLabel>
-      <InputGroup>
-        <InputGroupInput
-          id="date-required"
-          value={value}
-          placeholder="June 01, 2025"
-          onChange={(e) => {
-            const date = new Date(e.target.value)
-            setValue(e.target.value)
-            if (isValidDate(date)) {
-              setDate(date)
-              setMonth(date)
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
-              e.preventDefault()
-              setOpen(true)
-            }
-          }}
-        />
-        <InputGroupAddon align="inline-end">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <InputGroupButton
-                id="date-picker"
-                variant="ghost"
-                size="icon-xs"
-                aria-label="Select date"
-              >
-                <CalendarIcon />
-                <span className="sr-only">Select date</span>
-              </InputGroupButton>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="end"
-              alignOffset={-8}
-              sideOffset={10}
+    <InputGroup>
+      <InputGroupInput
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown" && !disabled) {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+      />
+      <InputGroupAddon align={alignIcon}>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <InputGroupButton
+              variant="ghost"
+              size="icon-xs"
+              aria-label="Select date"
+              disabled={disabled}
+              className="cursor-pointer"
             >
-              <Calendar
-                mode="single"
-                selected={date}
-                month={month}
-                onMonthChange={setMonth}
-                onSelect={(date) => {
-                  setDate(date)
-                  setValue(formatDate(date))
-                  setOpen(false)
-                }}
-              />
-            </PopoverContent>
-          </Popover>
-        </InputGroupAddon>
-      </InputGroup>
+              <Icon className="text-muted-foreground" />
+              <span className="sr-only">Select date</span>
+            </InputGroupButton>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-auto overflow-hidden p-0"
+            align="end"
+            alignOffset={-8}
+            sideOffset={10}
+          >
+            <Calendar
+              mode="single"
+              disabled={(date) => {
+                return date > new Date();
+              }}
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </InputGroupAddon>
+    </InputGroup>
+  );
+}
+
+// Legacy component for backward compatibility
+export function DatePickerInput({
+  label,
+  alignIcon = "inline-start",
+  inputProps,
+}: {
+  label: string;
+  alignIcon?: "inline-start" | "inline-end";
+  inputProps?: Omit<
+    ComponentProps<typeof InputGroupInput>,
+    "value" | "onChange"
+  >;
+}) {
+  const [value, setValue] = useState("");
+
+  return (
+    <Field>
+      <FieldLabel>{label}</FieldLabel>
+      <DatePicker
+        value={value}
+        onChange={setValue}
+        alignIcon={alignIcon}
+        placeholder={inputProps?.placeholder}
+        disabled={inputProps?.disabled}
+      />
     </Field>
-  )
+  );
 }
