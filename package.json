@@ -53,7 +53,7 @@
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
   },
-"lint-staged": {
-  "*.{js,jsx,ts,tsx}": "npx prettier --write"
-}
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "npx prettier --write"
+  }
 }
