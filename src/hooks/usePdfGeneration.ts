@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { generatePdf } from "../api/resume";
-import type { ResumeData } from "../types/resume";
+import { generatePdf } from "@/api/resume";
+import type { ResumeFormData } from "@/lib/validation";
 
 export function usePdfGeneration() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -8,7 +8,7 @@ export function usePdfGeneration() {
   const [error, setError] = useState<string | null>(null);
 
   const generate = useCallback(
-    async (data: ResumeData) => {
+    async (data: ResumeFormData) => {
       setIsLoading(true);
       setError(null);
 

@@ -1,6 +1,7 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Input } from "../ui/input";
 import { FormSection, FormRow, FormField } from "./FormSection";
+import type { ResumeFormData } from "@/lib/validation";
 
 interface Props {
   form: UseFormReturn<ResumeFormData>;
@@ -11,7 +12,8 @@ export function PersonalInfoForm({ form }: Props) {
 
   return (
     <FormSection title="Personal Information">
-      <FormRow>
+      <div className="rb-personal-info-form">
+        <FormRow>
         <FormField 
           label="Full Name" 
           error={errors.personalInfo?.name?.message}
@@ -76,6 +78,7 @@ export function PersonalInfoForm({ form }: Props) {
           />
         </FormField>
       </FormRow>
+      </div>
     </FormSection>
   );
 }

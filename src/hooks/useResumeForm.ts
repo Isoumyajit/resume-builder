@@ -1,7 +1,7 @@
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { resumeSchema, type ResumeFormData } from "../lib/validation";
 import { nanoid } from "nanoid";
+import { resumeSchema, type ResumeFormData } from "@/lib/validation";
 
 const defaultValues: ResumeFormData = {
   personalInfo: {
@@ -31,7 +31,7 @@ const defaultValues: ResumeFormData = {
 
 export function useResumeForm() {
   const form = useForm<ResumeFormData>({
-    resolver: zodResolver(resumeSchema),
+    resolver: zodResolver(resumeSchema) as Resolver<ResumeFormData>,
     defaultValues,
     mode: "onChange",
   });

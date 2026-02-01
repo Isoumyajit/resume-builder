@@ -1,4 +1,4 @@
-import type { ResumeData } from "../types/resume";
+import type { ResumeFormData } from "@/lib/validation";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -16,7 +16,7 @@ export class ApiError extends Error {
  * Generate a PDF from resume data
  * Sends form data to backend, which compiles LaTeX and returns PDF
  */
-export async function generatePdf(data: ResumeData): Promise<Blob> {
+export async function generatePdf(data: ResumeFormData): Promise<Blob> {
   const response = await fetch(`${API_BASE_URL}/api/generate-pdf`, {
     method: "POST",
     headers: {

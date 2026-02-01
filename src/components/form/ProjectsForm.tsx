@@ -4,7 +4,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { FormSection, FormRow, FormField } from "./FormSection";
-import type { ResumeFormData } from "../../lib/validation";
+import type { ResumeFormData } from "@/lib/validation";
 
 interface Props {
   form: UseFormReturn<ResumeFormData>;
@@ -33,18 +33,18 @@ export function ProjectsForm({ form, fieldArray, onAddProject }: Props) {
       }
     >
       {fields.length === 0 ? (
-        <p className="text-center text-gray-500 py-4">
+        <p className="rb-projects-form__empty-state text-center text-gray-500 py-4">
           No projects added yet. Click "Add Project" to showcase your work.
         </p>
       ) : (
-        <div className="space-y-6">
+        <div className="rb-projects-form__list space-y-6">
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4"
+              className="rb-projects-form__item rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-4"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-gray-400">
+              <div className="rb-projects-form__item-header flex items-center justify-between">
+                <div className="rb-projects-form__item-label flex items-center gap-2 text-gray-400">
                   <GripVertical className="h-4 w-4" />
                   <span className="text-sm font-medium text-gray-600">
                     Project {index + 1}
@@ -55,7 +55,7 @@ export function ProjectsForm({ form, fieldArray, onAddProject }: Props) {
                   variant="ghost"
                   size="sm"
                   onClick={() => remove(index)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="rb-projects-form__item-remove text-red-500 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -76,7 +76,7 @@ export function ProjectsForm({ form, fieldArray, onAddProject }: Props) {
                   optional
                   error={errors.projects?.[index]?.url?.message}
                 >
-                  <div className="relative">
+                  <div className="rb-projects-form__url-wrapper relative">
                     <Input
                       {...register(`projects.${index}.url`)}
                       placeholder="https://github.com/user/project"
@@ -104,7 +104,7 @@ export function ProjectsForm({ form, fieldArray, onAddProject }: Props) {
                 <Textarea
                   {...register(`projects.${index}.description`)}
                   placeholder="Brief description of the project and your contributions..."
-                  className="min-h-[80px]"
+                  className="rb-projects-form__description min-h-[80px]"
                 />
               </FormField>
             </div>

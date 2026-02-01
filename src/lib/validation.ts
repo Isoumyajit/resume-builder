@@ -63,9 +63,9 @@ export const skillsSchema = z.object({
 export const resumeSchema = z.object({
   personalInfo: personalInfoSchema,
   experience: z.array(experienceSchema),
-  education: z.array(educationSchema),
-  projects: z.array(projectSchema),
-  profileLinks: profileLinksSchema,
+  education: z.array(educationSchema).optional().default([]),
+  projects: z.array(projectSchema).optional().default([]),
+  profileLinks: profileLinksSchema.optional().default({}),
   skills: skillsSchema,
 });
 
