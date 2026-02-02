@@ -92,6 +92,15 @@ export const experienceSchema = z
       .array(z.string())
       .min(1, "At least one bullet point is required"),
   })
+  .refine(
+    (data) => {
+      return data.bullets.every((bullet) => bullet.length <= 300);
+    },
+    {
+      message: "Each bullet point must be less than or equal to 300 characters",
+      path: ["bullets"],
+    },
+  )
   .refine((data) => {
     // Validate endDate based on currentlyWorking status
     return isValidEndDateForWorkStatus(data.endDate, data.currentlyWorking);

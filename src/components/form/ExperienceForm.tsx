@@ -182,29 +182,37 @@ export function ExperienceForm({
                 </div>
 
                 {watch(`experience.${index}.bullets`)?.map((_, bulletIndex) => (
-                  <div key={bulletIndex} className="flex items-center gap-2">
-                    <span className="mt-2.5 text-muted-foreground">
-                      <CircleSmall />
+                  <div key={bulletIndex} className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="mt-2.5 text-muted-foreground">
+                        <CircleSmall />
+                      </span>
+                      <div className="flex items-center gap-2 min-w-[calc(100%-20px)]">
+                        <Textarea
+                          {...register(
+                            `experience.${index}.bullets.${bulletIndex}`,
+                          )}
+                          placeholder="Describe your achievement or responsibility..."
+                          className="min-h-[60px] resize-none"
+                          maxLength={300}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onRemoveBullet(index, bulletIndex)}
+                          className="mt-1 text-muted-foreground hover:text-destructive cursor-pointer"
+                          disabled={
+                            watch(`experience.${index}.bullets`)?.length === 1
+                          }
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground self-end mr-10">
+                      {`${form.watch(`experience.${index}.bullets.${bulletIndex}`).length}/300`}{" "}
                     </span>
-                    <Textarea
-                      {...register(
-                        `experience.${index}.bullets.${bulletIndex}`,
-                      )}
-                      placeholder="Describe your achievement or responsibility..."
-                      className="min-h-[60px] resize-none"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onRemoveBullet(index, bulletIndex)}
-                      className="mt-1 text-muted-foreground hover:text-destructive cursor-pointer"
-                      disabled={
-                        watch(`experience.${index}.bullets`)?.length === 1
-                      }
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 ))}
               </div>
