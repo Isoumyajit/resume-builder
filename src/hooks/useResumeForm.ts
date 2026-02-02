@@ -27,6 +27,7 @@ const defaultValues: ResumeFormData = {
     technologies: "",
     other: "",
   },
+  achievements: [],
 };
 
 export function useResumeForm() {
@@ -49,6 +50,11 @@ export function useResumeForm() {
   const projectsArray = useFieldArray({
     control: form.control,
     name: "projects",
+  });
+
+  const achievementsArray = useFieldArray({
+    control: form.control,
+    name: "achievements",
   });
 
   const addExperience = () => {
@@ -86,13 +92,20 @@ export function useResumeForm() {
     });
   };
 
+  const addAchievement = () => {
+    achievementsArray.append({
+      id: nanoid(),
+      bullet: "",
+    });
+  };
+
   const addBullet = (experienceIndex: number) => {
     const currentBullets = form.getValues(
       `experience.${experienceIndex}.bullets`,
     );
     form.setValue(`experience.${experienceIndex}.bullets`, [
-      ...currentBullets,
       "",
+      ...currentBullets,
     ]);
   };
 
@@ -129,9 +142,11 @@ export function useResumeForm() {
     experienceArray,
     educationArray,
     projectsArray,
+    achievementsArray,
     addExperience,
     addEducation,
     addProject,
+    addAchievement,
     addBullet,
     removeBullet,
     toggleCurrentlyWorking,

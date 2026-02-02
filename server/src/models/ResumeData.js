@@ -9,6 +9,7 @@ const Education = require("./Education");
 const Project = require("./Project");
 const ProfileLinks = require("./ProfileLinks");
 const Skills = require("./Skills");
+const Achievement = require("./Achievement");
 
 class ResumeData {
   constructor(data = {}) {
@@ -18,6 +19,9 @@ class ResumeData {
     this.projects = (data.projects || []).map((proj) => new Project(proj));
     this.profileLinks = new ProfileLinks(data.profileLinks || {});
     this.skills = new Skills(data.skills || {});
+    this.achievements = (data.achievements || []).map(
+      (ach) => new Achievement(ach),
+    );
 
     // Metadata
     this.createdAt = data.createdAt || new Date();
@@ -69,6 +73,17 @@ class ResumeData {
       }
     });
 
+    this.achievements.forEach((ach, index) => {
+      const achValidation = ach.validate();
+      if (!achValidation.isValid) {
+        errors.push(
+          ...achValidation.errors.map(
+            (err) => `Achievement ${index + 1}: ${err}`,
+          ),
+        );
+      }
+    });
+
     return {
       isValid: errors.length === 0,
       errors,
@@ -87,6 +102,7 @@ class ResumeData {
       projects: this.projects.map((proj) => proj.toJSON()),
       profileLinks: this.profileLinks.toJSON(),
       skills: this.skills.toJSON(),
+      achievements: this.achievements.map((ach) => ach.toJSON()),
       metadata: {
         createdAt: this.createdAt,
         updatedAt: this.updatedAt,
@@ -129,12 +145,14 @@ class ResumeData {
       experienceCount: this.experience.length,
       educationCount: this.education.length,
       projectsCount: this.projects.length,
+      achievementsCount: this.achievements.length,
       totalBullets: this.experience.reduce(
         (total, exp) => total + exp.bullets.length,
         0,
       ),
       hasProfileLinks: this.profileLinks.hasAnyLinks(),
       hasSkills: this.skills.hasAnySkills(),
+      hasAchievements: this.achievements.length > 0,
       isComplete: this.hasMinimumContent(),
     };
   }

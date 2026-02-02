@@ -13,6 +13,7 @@ const { generateEducationHtml } = require("./templates/educationCreator");
 const { generateProjectsHtml } = require("./templates/projectsCreator");
 const { generateSkillsHtml } = require("./templates/skillsCreator");
 const { generateProfileLinksHtml } = require("./templates/profileLinksCreator");
+const { generateAchievementsHtml } = require("./templates/achievementsCreator");
 
 /**
  * Generate complete HTML template from resume data.
@@ -25,6 +26,7 @@ function generateHtmlTemplate(data) {
     projects = [],
     profileLinks = {},
     skills = {},
+    achievements = [],
   } = data;
 
   return `
@@ -46,6 +48,7 @@ function generateHtmlTemplate(data) {
     ${generateExperienceHtml(experience)}
     ${generateEducationHtml(education)}
     ${generateProjectsHtml(projects)}
+    ${generateAchievementsHtml(achievements)}
     ${generateProfileLinksHtml(profileLinks)}
     ${generateSkillsHtml(skills)}
     ${generateFooterHtml()}

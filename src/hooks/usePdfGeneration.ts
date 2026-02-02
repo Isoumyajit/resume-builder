@@ -11,11 +11,9 @@ export function usePdfGeneration() {
     async (data: ResumeFormData) => {
       setIsLoading(true);
       setError(null);
-      console.log("Generating PDF", data);
 
       try {
         const blob = await generatePdf(data);
-        console.log("blob", blob);
 
         // Revoke previous URL to prevent memory leak
         if (pdfUrl) {

@@ -28,7 +28,7 @@ export function ProjectsForm({
       action={
         <Button
           type="button"
-          variant="outline"
+          variant="default"
           size="sm"
           onClick={onAddProject}
           className="gap-1 cursor-pointer"

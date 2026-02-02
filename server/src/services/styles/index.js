@@ -5,6 +5,7 @@ const { itemStyles } = require("./itemStyles");
 const { projectStyles } = require("./projectStyles");
 const { skillsStyles } = require("./skillsStyles");
 const { profileLinksStyles } = require("./profileLinksStyles");
+const { achievementsStyles } = require("./achievementsStyles");
 
 /**
  * Get all styles combined.
@@ -18,6 +19,7 @@ function getAllStyles() {
     projectStyles,
     profileLinksStyles,
     skillsStyles,
+    achievementsStyles,
   ].join("\n");
 }
 
@@ -33,6 +35,7 @@ function getStylesBySections(sections = []) {
     project: projectStyles,
     profileLinks: profileLinksStyles,
     skills: skillsStyles,
+    achievements: achievementsStyles,
   };
 
   return sections
@@ -49,6 +52,7 @@ module.exports = {
   projectStyles,
   profileLinksStyles,
   skillsStyles,
+  achievementsStyles,
   getAllStyles,
   getStylesBySections,
 };

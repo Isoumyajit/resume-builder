@@ -23,6 +23,7 @@ const ICON_URLS = {
   verticalLine: `<img width="10" height="10" src="https://img.icons8.com/ios-glyphs/30/vertical-line.png" alt="vertical-line"/>`,
   leetcode: `<img width="10" height="10" src="https://img.icons8.com/small/16/leetcode.png" alt="leetcode"/>`,
   link: `<img width="10" height="10" src="https://img.icons8.com/material-outlined/24/link--v1.png" alt="link--v1"/>`,
+  trophy: `<img width="16" height="16" src="https://img.icons8.com/ios/50/trophy--v1.png" alt="trophy"/>`,
 };
 
 module.exports = { ICON_URLS };

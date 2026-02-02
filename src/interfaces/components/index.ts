@@ -9,6 +9,7 @@ export type {
   ProjectsFormProps,
   ProfileLinksFormProps,
   SkillsFormProps,
+  AchievementsFormProps,
   DatePickerProps,
   CheckboxFieldProps,
 } from "./form";
