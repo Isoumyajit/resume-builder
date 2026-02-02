@@ -42,7 +42,7 @@ function isDateInFuture(dateStr: string): boolean {
 // Helper function to check if endDate is valid for currentlyWorking status
 function isValidEndDateForWorkStatus(
   endDate: string,
-  currentlyWorking: boolean,
+  currentlyWorking: boolean
 ): boolean {
   if (currentlyWorking) {
     // If currently working, endDate should be "Present"
@@ -99,7 +99,7 @@ export const experienceSchema = z
     {
       message: "Each bullet point must be less than or equal to 300 characters",
       path: ["bullets"],
-    },
+    }
   )
   .refine((data) => {
     return isValidEndDateForWorkStatus(data.endDate, data.currentlyWorking);
@@ -116,7 +116,7 @@ export const experienceSchema = z
     {
       message: "Start date must be before or equal to end date",
       path: ["endDate"], // Show error on end date field
-    },
+    }
   );
 
 // Education Schema
@@ -153,7 +153,7 @@ export const educationSchema = z
     {
       message: "Start year must be before or equal to end year",
       path: ["endYear"], // Show error on end year field
-    },
+    }
   );
 
 // Project Schema
@@ -196,7 +196,7 @@ export const achievementSchema = z
     },
     {
       path: ["bullet"],
-    },
+    }
   );
 
 // Complete Resume Schema
