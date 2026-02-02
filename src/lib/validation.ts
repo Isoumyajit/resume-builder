@@ -191,12 +191,10 @@ export const achievementSchema = z
   })
   .refine(
     (data) => {
-      // Max 100 characters without spaces
       const charCountWithoutSpaces = data.bullet.replace(/\s/g, "").length;
       return charCountWithoutSpaces <= 100;
     },
     {
-      message: "Achievement must be max 100 characters (excluding spaces)",
       path: ["bullet"],
     },
   );

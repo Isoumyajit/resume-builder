@@ -8,6 +8,13 @@ const { ICON_URLS } = require("../assets/iconUrls");
 function generateExperienceHtml(experience = []) {
   if (experience.length === 0) return "";
 
+  console.log(experience);
+
+  experience = experience.map((exp) => ({
+    ...exp,
+    bullets: exp.bullets.reverse(),
+  }));
+
   const experienceItems = experience
     .map(
       (exp) => `
