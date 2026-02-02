@@ -212,9 +212,6 @@ export function ExperienceForm({
                     </div>
                     <span className="text-xs text-muted-foreground self-end mr-10">
                       {`${form.watch(`experience.${index}.bullets.${bulletIndex}`).length}/300`}{" "}
-                    
-                    
-                    
                     </span>
                   </div>
                 ))}
