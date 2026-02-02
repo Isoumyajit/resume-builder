@@ -4,7 +4,7 @@ const { exec } = require("child_process");
 const { promisify } = require("util");
 const puppeteer = require("puppeteer");
 const execAsync = promisify(exec);
-const { generateHtmlTemplate, escapeHtml } = require("./htmlTemplateGenerator");
+const { generateHtmlTemplate } = require("./htmlTemplateGenerator");
 
 // PDF generation method: 'puppeteer' (cross-platform) or 'latex' (requires pdflatex)
 const PDF_METHOD = process.env.PDF_METHOD || "puppeteer";
@@ -292,6 +292,5 @@ module.exports = {
   generateResumePdfLatex,
   generateHtmlTemplate,
   generateLatexTemplate,
-  escapeHtml,
   escapeLatex,
 };
