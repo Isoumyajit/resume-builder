@@ -1,0 +1,53 @@
+# =============================================================================
+# Resume Builder Backend - Development Dockerfile
+# =============================================================================
+# Development image with nodemon for auto-restart on file changes.
+#
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+# =============================================================================
+
+FROM node:20-slim
+
+WORKDIR /app
+
+# Install Chromium and dependencies
+RUN apt-get update && apt-get install -y \
+    chromium \
+    fonts-liberation \
+    fonts-noto-color-emoji \
+    fonts-noto-cjk \
+    fonts-freefont-ttf \
+    fonts-dejavu-core \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdrm2 \
+    libgbm1 \
+    libnss3 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libxkbcommon0 \
+    ca-certificates \
+    curl \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Puppeteer configuration
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Install ALL dependencies (including devDependencies)
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copy source
+COPY . .
+
+# Create temp directory
+RUN mkdir -p /app/temp
+
+EXPOSE 3001
+
+CMD ["npm", "run", "dev"]

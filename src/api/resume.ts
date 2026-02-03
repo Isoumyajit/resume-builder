@@ -6,13 +6,13 @@ import {
 } from "@/config/api";
 
 export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public endpoint?: string,
-  ) {
+  status: number;
+  endpoint?: string;
+
+  constructor(message: string, status: number, endpoint?: string) {
     super(message);
     this.name = "ApiError";
+    this.status = status;
     this.endpoint = endpoint;
   }
 }
@@ -22,10 +22,6 @@ export class ApiError extends Error {
  * Sends form data to backend, which compiles LaTeX and returns PDF
  */
 export async function generatePdf(data: ResumeFormData): Promise<Blob> {
-  console.log(`📡 Calling API: ${API_ENDPOINTS.GENERATE_PDF}`);
-
-  console.log("data", data);
-
   const controller = new AbortController();
   const timeoutId = setTimeout(
     () => controller.abort(),
@@ -51,10 +47,9 @@ export async function generatePdf(data: ResumeFormData): Promise<Blob> {
     }
 
     const blob = await response.blob();
-    console.log("blob", blob);
     return blob;
-  } catch (error) {
-    if (error.name === "AbortError") {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === "AbortError") {
       throw new ApiError("Request timeout - PDF generation took too long", 408);
     }
     throw error;
@@ -78,6 +73,7 @@ export async function healthCheck(): Promise<boolean> {
  */
 export async function detailedHealthCheck(): Promise<{
   status: "healthy" | "degraded" | "unhealthy";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   serverInfo?: any;
   versionCompatible: boolean;
   error?: string;
@@ -113,6 +109,7 @@ export async function detailedHealthCheck(): Promise<{
 /**
  * Get available resume templates
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getTemplates(): Promise<any[]> {
   try {
     const response = await fetch(API_ENDPOINTS.TEMPLATES);

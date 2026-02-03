@@ -15,7 +15,6 @@ router.post("/generate-pdf", validateResumeData, async (req, res) => {
   try {
     const resumeData = req.resumeData;
 
-    console.log("resumeData", resumeData);
     logPdfEvent("start", {
       userName: resumeData.personalInfo.name,
       stats: resumeData.getStats(),

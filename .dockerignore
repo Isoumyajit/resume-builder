@@ -1,0 +1,44 @@
+# =============================================================================
+# Docker Ignore - Frontend
+# =============================================================================
+
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Build output
+dist
+build
+
+# Development
+.git
+.gitignore
+.husky
+.vscode
+.idea
+
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Testing
+coverage
+__tests__
+*.test.ts
+*.test.tsx
+
+# Docker
+Dockerfile*
+docker-compose*
+.docker
+
+# Misc
+.DS_Store
+*.log

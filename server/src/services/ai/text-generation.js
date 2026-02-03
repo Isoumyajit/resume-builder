@@ -11,8 +11,6 @@ async function* streamContent(prompt) {
     contents: prompt,
   });
 
-  console.log(prompt);
-
   for await (const chunk of response) {
     yield chunk.text.trim() + " ";
   }

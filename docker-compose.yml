@@ -1,0 +1,77 @@
+# =============================================================================
+# Docker Compose - Resume Builder
+# =============================================================================
+# Orchestrates frontend and backend services.
+#
+# Usage:
+#   Start:    docker-compose up
+#   Build:    docker-compose build
+#   Stop:     docker-compose down
+#   Logs:     docker-compose logs -f [service]
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Frontend Service - React + Nginx
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3001
+        VITE_API_VERSION: v1
+        VITE_NODE_ENV: development
+    container_name: resume-builder-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ---------------------------------------------------------------------------
+  # Backend Service - Node.js + Puppeteer
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: resume-builder-backend
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:5173
+      - API_VERSION=v1
+      - LOG_LEVEL=debug
+      - PDF_METHOD=puppeteer
+    volumes:
+      - backend-temp:/app/temp
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  backend-temp:
