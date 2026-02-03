@@ -4,7 +4,7 @@ const projectStyles = `
     display: flex;
     align-items: center;
     gap: 2px;
-    font-weight: semibold;
+    font-weight: 600;
     color: #404040;
   }
 

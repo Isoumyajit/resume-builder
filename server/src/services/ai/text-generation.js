@@ -11,8 +11,6 @@ async function* streamContent(prompt) {
     contents: prompt,
   });
 
-  console.log(prompt);
-
   for await (const chunk of response) {
     yield chunk.text.trim() + " ";
   }
@@ -22,7 +20,7 @@ async function* streamContent(prompt) {
  * Generate a single bullet point for experience
  */
 async function generateExperienceBullet({ jobTitle, company, techStack }) {
-  const prompt = `Generate ONE professional 4 bullet point for:
+  const prompt = `Generate 4 professional bullet points for:
 Role: ${jobTitle} at ${company}
 Tech: ${techStack || "N/A"}
 
@@ -34,7 +32,7 @@ Requirements:
 - Professional, concise language
 - 4 bullet points
 - Each bullet point should be 250 characters max
-- Each bullet point should be a one oe two sentence bullet point
+- Each bullet point should be a one or two sentence bullet point
 - Each bullet point should be a professional, concise language
 - After one bullet point, add a new line
 

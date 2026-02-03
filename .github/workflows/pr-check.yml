@@ -1,0 +1,123 @@
+# =============================================================================
+# GitHub Actions - Pull Request Checks
+# =============================================================================
+# Runs validation on pull requests - no deployment.
+# =============================================================================
+
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches-ignore: [main]
+
+jobs:
+  # ===========================================================================
+  # Frontend Checks
+  # ===========================================================================
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_URL: http://localhost:3001
+          VITE_API_VERSION: v1
+
+  # ===========================================================================
+  # Backend Checks
+  # ===========================================================================
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+  # ===========================================================================
+  # Docker Build Check
+  # ===========================================================================
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          build-args: |
+            VITE_API_URL=http://localhost:3001
+            VITE_API_VERSION=v1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ===========================================================================
+  # Security Audit
+  # ===========================================================================
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Audit Frontend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Audit Backend
+        working-directory: server
+        run: npm audit --audit-level=high
+        continue-on-error: true

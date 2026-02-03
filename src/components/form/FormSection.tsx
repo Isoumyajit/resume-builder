@@ -67,14 +67,16 @@ export function FormField({
   return (
     <Field className="w-full my-2">
       <FieldLabel>
-        <div className="flex min-w-full items-center justify-between">
-          {label}
-          {optional && (
+        {optional ? (
+          <div className="flex min-w-full items-center justify-between">
+            {label}
             <span className="text-muted-foreground ml-1 font-normal">
               (optional)
             </span>
-          )}
-        </div>
+          </div>
+        ) : (
+          label
+        )}
       </FieldLabel>
       {action && action}
       <FieldContent>
