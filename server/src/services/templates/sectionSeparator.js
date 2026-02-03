@@ -4,10 +4,10 @@
 function createSection(title, content, icon = "") {
   if (!content) return "";
   return `
-    <div class="section">
+    <section class="section">
       <div class="section-title"> ${icon && icon} ${title}</div>
       ${content}
-    </div>
+    </section>
   `;
 }
 

@@ -1,7 +1,10 @@
 const sectionStyles = `
   .section {
     margin-bottom: 12px;
-  }
+    break-inside: avoid;
+    break-after: auto;
+    
+}
   
   .section-title {
     display: flex;
