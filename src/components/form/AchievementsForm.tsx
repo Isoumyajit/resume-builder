@@ -63,11 +63,7 @@ export function AchievementsForm({
                       {...register(`achievements.${index}.bullet`)}
                       placeholder="Codeforces rating 2200"
                       className="min-h-[60px] resize-none"
-<<<<<<< HEAD
                       maxLength={100}
-=======
-                      maxLength={101}
->>>>>>> 4e1bcb6 (UI and functionalities are changed and modified)
                     />
                   </FormField>
                   <div
@@ -75,11 +71,7 @@ export function AchievementsForm({
                       isOverLimit ? "text-destructive" : "text-muted-foreground"
                     }`}
                   >
-<<<<<<< HEAD
                     {charCount}/100
-=======
-                    {charCount}/100 characters (excluding spaces)
->>>>>>> 4e1bcb6 (UI and functionalities are changed and modified)
                   </div>
                 </div>
                 <Button
