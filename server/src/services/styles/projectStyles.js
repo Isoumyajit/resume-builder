@@ -1,6 +1,10 @@
 const projectStyles = `
   .project-title {
-    font-weight: bold;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-weight: semibold;
     color: #404040;
   }
 
@@ -24,7 +28,7 @@ const projectStyles = `
   }
   
   .project-description {
-    margin-top: 4px;
+    margin-top: 2px;
     display: flex;
     align-items: center;
     gap: 8px;

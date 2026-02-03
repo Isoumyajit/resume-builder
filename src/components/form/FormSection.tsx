@@ -21,8 +21,10 @@ import {
 } from "@/components/ui/input-group";
 import { DatePicker } from "@/components/ui/datepicker";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { LucideIcon } from "lucide-react";
-import type { ComponentProps } from "react";
+import type {
+  DateIconFieldProps,
+  InputIconFieldProps,
+} from "@/interfaces/components/form";
 
 export function FormSection({ title, children, action }: FormSectionProps) {
   return (
@@ -60,17 +62,21 @@ export function FormField({
   error,
   children,
   optional,
+  action,
 }: FormFieldProps) {
   return (
     <Field className="w-full my-2">
       <FieldLabel>
-        {label}
-        {optional && (
-          <span className="text-muted-foreground ml-1 font-normal">
-            (optional)
-          </span>
-        )}
+        <div className="flex min-w-full items-center justify-between">
+          {label}
+          {optional && (
+            <span className="text-muted-foreground ml-1 font-normal">
+              (optional)
+            </span>
+          )}
+        </div>
       </FieldLabel>
+      {action && action}
       <FieldContent>
         {children}
         <FieldError errors={error ? [{ message: error }] : []} />
@@ -79,19 +85,10 @@ export function FormField({
   );
 }
 
-// Component for fields with icons - same as FormField
 export function IconField(props: FormFieldProps) {
   return <FormField {...props} />;
 }
 
-// Props for InputIconField
-interface InputIconFieldProps extends Omit<FormFieldProps, "children"> {
-  icon: LucideIcon;
-  align?: "inline-start" | "inline-end";
-  inputProps: ComponentProps<typeof InputGroupInput>;
-}
-
-// Component that handles InputGroup structure internally
 export function InputIconField({
   label,
   error,
@@ -121,18 +118,6 @@ export function InputIconField({
       </FieldContent>
     </Field>
   );
-}
-
-// Props for DateIconField
-interface DateIconFieldProps extends Omit<FormFieldProps, "children"> {
-  icon: LucideIcon;
-  align?: "inline-start" | "inline-end";
-  dateProps: {
-    value?: string;
-    onChange?: (value: string) => void;
-    placeholder?: string;
-    disabled?: boolean;
-  };
 }
 
 // Component for date fields with icons (DatePicker already handles InputGroup internally)

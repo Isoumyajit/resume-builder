@@ -8,9 +8,11 @@ import {
   Code,
   Calendar,
   CircleSmall,
+  Sparkles,
 } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+import { LoadingDots } from "../ui/loading-dots";
 import {
   FormSection,
   FormRow,
@@ -19,6 +21,8 @@ import {
   CheckboxField,
 } from "./FormSection";
 import type { ExperienceFormProps } from "@/interfaces/components";
+import { useAiService } from "@/hooks";
+import { Skeleton } from "../ui/skeleton";
 
 export function ExperienceForm({
   form,
@@ -34,6 +38,20 @@ export function ExperienceForm({
     watch,
   } = form;
   const { fields, remove } = fieldArray;
+
+  const { generateBullets, isGeneratingBullets, isAiServiceRunning } =
+    useAiService({
+      setValue: form.setValue,
+    });
+
+  const handleGenerateBullets = (index: number) => {
+    generateBullets({
+      index,
+      jobTitle: form.watch(`experience.${index}.title`),
+      company: form.watch(`experience.${index}.company`),
+      techStack: form.watch(`experience.${index}.techStack`),
+    });
+  };
 
   return (
     <FormSection
@@ -169,55 +187,90 @@ export function ExperienceForm({
                   <label className="text-sm font-medium">
                     Achievements / Responsibilities
                   </label>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onAddBullet(index)}
-                    className="gap-1 text-primary hover:text-primary cursor-pointer"
-                  >
-                    <Plus className="h-3 w-3" />
-                    Add Bullet
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleGenerateBullets(index)}
+                      className="text-primary hover:text-primary cursor-pointer"
+                      title="Generate with AI"
+                    >
+                      {isAiServiceRunning[index] ? (
+                        <LoadingDots />
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-4 w-4" />
+                          <span>Generate with AI</span>
+                        </div>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onAddBullet(index)}
+                      className="gap-1 text-primary hover:text-primary cursor-pointer"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add Bullet
+                    </Button>
+                  </div>
                 </div>
 
-                {watch(`experience.${index}.bullets`)?.map((_, bulletIndex) => (
-                  <div key={bulletIndex} className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <span className="mt-2.5 text-muted-foreground">
-                        <CircleSmall />
-                      </span>
-                      <div className="flex items-center gap-2 min-w-[calc(100%-20px)]">
-                        <Textarea
-                          {...register(
-                            `experience.${index}.bullets.${bulletIndex}`,
-                          )}
-                          placeholder="Describe your achievement or responsibility..."
-                          className="min-h-[60px] resize-none"
-                          maxLength={300}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onRemoveBullet(index, bulletIndex)}
-                          className="mt-1 text-muted-foreground hover:text-destructive cursor-pointer"
-                          disabled={
-                            watch(`experience.${index}.bullets`)?.length === 1
-                          }
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    <span className="text-xs text-muted-foreground self-end mr-10">
-                      {`${
-                        form.watch(`experience.${index}.bullets.${bulletIndex}`)
-                          .length
-                      }/300`}{" "}
-                    </span>
+                {isGeneratingBullets.includes(index as never) && (
+                  <div className="flex flex-col items-center gap-2">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Skeleton
+                        key={index}
+                        className="h-[30px] flex flex-col w-full animate-pulse"
+                      />
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {!isGeneratingBullets.includes(index as never) &&
+                  watch(`experience.${index}.bullets`)?.map(
+                    (_, bulletIndex) => {
+                      return (
+                        <div key={bulletIndex} className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span className="mt-2.5 text-muted-foreground">
+                              <CircleSmall />
+                            </span>
+                            <div className="flex items-center gap-2 min-w-[calc(100%-20px)]">
+                              <Textarea
+                                {...register(
+                                  `experience.${index}.bullets.${bulletIndex}`,
+                                )}
+                                placeholder="Describe your achievement or responsibility..."
+                                className="min-h-[60px] resize-none"
+                                maxLength={300}
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  onRemoveBullet(index, bulletIndex)
+                                }
+                                className="text-muted-foreground hover:text-destructive cursor-pointer"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          <span className="text-xs text-muted-foreground self-end mr-10">
+                            {`${
+                              form.watch(
+                                `experience.${index}.bullets.${bulletIndex}`,
+                              ).length
+                            }/300`}{" "}
+                          </span>
+                        </div>
+                      );
+                    },
+                  )}
               </div>
             </div>
           ))}
