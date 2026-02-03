@@ -5,11 +5,15 @@ import {
   ExternalLink,
   FolderOpen,
   Code,
+  Sparkles,
 } from "lucide-react";
+import { LoadingDots } from "../ui/loading-dots";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { FormSection, FormRow, FormField, InputIconField } from "./FormSection";
 import type { ProjectsFormProps } from "@/interfaces/components";
+import { Skeleton } from "../ui/skeleton";
+import { useAiService } from "@/hooks";
 
 export function ProjectsForm({
   form,
@@ -19,9 +23,12 @@ export function ProjectsForm({
   const {
     register,
     formState: { errors },
+    setValue,
   } = form;
   const { fields, remove } = fieldArray;
-
+  const { generateDescription, isGenerating } = useAiService({
+    setValue,
+  });
   return (
     <FormSection
       title="Projects"
@@ -103,12 +110,47 @@ export function ProjectsForm({
               <FormField
                 label="Description"
                 error={errors.projects?.[index]?.description?.message}
+                action={
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      generateDescription({
+                        index,
+                        projectName: form.watch(`projects.${index}.name`),
+                        techStack: form.watch(`projects.${index}.techStack`),
+                        url: form.watch(`projects.${index}.url`),
+                      })
+                    }
+                    className="text-primary hover:text-primary cursor-pointer self-end mt-1"
+                    disabled={
+                      isGenerating.includes(index as never) ||
+                      form.watch(`projects.${index}.name`).length === 0 ||
+                      form.watch(`projects.${index}.techStack`).length === 0
+                    }
+                    title="Generate with AI"
+                  >
+                    {isGenerating.includes(index as never) ? (
+                      <LoadingDots />
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        <span>Generate with AI</span>
+                      </div>
+                    )}
+                  </Button>
+                }
               >
-                <Textarea
-                  {...register(`projects.${index}.description`)}
-                  placeholder="Brief description of the project and your contributions..."
-                  className="min-h-[80px]"
-                />
+                {isGenerating.includes(index as never) ? (
+                  <Skeleton className="h-[80px]" />
+                ) : (
+                  <Textarea
+                    {...register(`projects.${index}.description`)}
+                    placeholder="Brief description of the project and your contributions..."
+                    className="min-h-[80px] whitespace-pre-wrap"
+                  />
+                )}
               </FormField>
             </div>
           ))}

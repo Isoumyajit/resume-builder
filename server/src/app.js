@@ -7,12 +7,13 @@ const express = require("express");
 const { validateConfig } = require("./config/api");
 const { setupBasicMiddleware, setupErrorHandling } = require("./middleware");
 const { setupRoutes } = require("./routes/index");
-
+const { generateText } = require("./services/ai/text-generation");
 /**
  * Create and configure Express application
  */
 function createApp() {
   // Validate configuration first
+
   validateConfig();
 
   // Create Express app

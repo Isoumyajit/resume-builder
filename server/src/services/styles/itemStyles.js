@@ -20,7 +20,6 @@ const itemStyles = `
   .item-title {
     display: flex;
     justify-content: space-between;
-    gap: 4px;
     font-size: 12pt;
     font-weight: 500;
     color:rgb(40, 40, 40);

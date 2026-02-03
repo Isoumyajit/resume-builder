@@ -100,6 +100,7 @@ export function useResumeForm() {
   };
 
   const addBullet = (experienceIndex: number) => {
+    console.log(experienceIndex);
     const currentBullets = form.getValues(
       `experience.${experienceIndex}.bullets`,
     );

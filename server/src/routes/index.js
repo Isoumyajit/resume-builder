@@ -6,6 +6,7 @@
 const { API_CONFIG } = require("../config/api");
 const healthRoutes = require("./health");
 const resumeRoutes = require("./resume");
+const aiRoutes = require("./ai");
 
 /**
  * Configure all application routes
@@ -13,6 +14,7 @@ const resumeRoutes = require("./resume");
 function setupRoutes(app) {
   app.use(API_CONFIG.BASE_PATH, healthRoutes);
   app.use(API_CONFIG.BASE_PATH, resumeRoutes);
+  app.use(`${API_CONFIG.BASE_PATH}/ai`, aiRoutes);
 
   app.get("/api", (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -26,6 +28,10 @@ function setupRoutes(app) {
         healthDetailed: `${API_CONFIG.BASE_PATH}/health/detailed`,
         generatePdf: `${API_CONFIG.BASE_PATH}/generate-pdf`,
         templates: `${API_CONFIG.BASE_PATH}/templates`,
+        ai: {
+          generateBullet: `${API_CONFIG.BASE_PATH}/ai/generate-bullet`,
+          generateDescription: `${API_CONFIG.BASE_PATH}/ai/generate-description`,
+        },
       },
       documentation: {
         github: "https://github.com/soumyajit/resume-builder#api-documentation",

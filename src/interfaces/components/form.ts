@@ -35,6 +35,7 @@ export interface FormFieldProps {
   error?: string;
   children?: ReactNode;
   optional?: boolean;
+  action?: ReactNode;
 }
 
 // PersonalInfoForm component props
@@ -108,4 +109,21 @@ export interface CheckboxFieldProps {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
+}
+
+export interface DateIconFieldProps extends Omit<FormFieldProps, "children"> {
+  icon: LucideIcon;
+  align?: "inline-start" | "inline-end";
+  dateProps: {
+    value?: string;
+    onChange?: (value: string) => void;
+    placeholder?: string;
+    disabled?: boolean;
+  };
+}
+
+export interface InputIconFieldProps extends Omit<FormFieldProps, "children"> {
+  icon: LucideIcon;
+  align?: "inline-start" | "inline-end";
+  inputProps: ComponentProps<typeof InputGroupInput>;
 }
