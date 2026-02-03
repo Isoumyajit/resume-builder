@@ -20,7 +20,7 @@ async function* streamContent(prompt) {
  * Generate a single bullet point for experience
  */
 async function generateExperienceBullet({ jobTitle, company, techStack }) {
-  const prompt = `Generate ONE professional 4 bullet point for:
+  const prompt = `Generate 4 professional bullet points for:
 Role: ${jobTitle} at ${company}
 Tech: ${techStack || "N/A"}
 
