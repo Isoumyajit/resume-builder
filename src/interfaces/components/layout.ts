@@ -30,9 +30,11 @@ export interface ResumeFormPanelProps {
   experienceArray: UseFieldArrayReturn<ResumeFormData, "experience">;
   educationArray: UseFieldArrayReturn<ResumeFormData, "education">;
   projectsArray: UseFieldArrayReturn<ResumeFormData, "projects">;
+  achievementsArray: UseFieldArrayReturn<ResumeFormData, "achievements">;
   addExperience: () => void;
   addEducation: () => void;
   addProject: () => void;
+  addAchievement: () => void;
   addBullet: (experienceIndex: number) => void;
   removeBullet: (experienceIndex: number, bulletIndex: number) => void;
   toggleCurrentlyWorking: (

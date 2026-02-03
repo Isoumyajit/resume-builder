@@ -10,6 +10,7 @@ const Education = require("./Education");
 const Project = require("./Project");
 const ProfileLinks = require("./ProfileLinks");
 const Skills = require("./Skills");
+const Achievement = require("./Achievement");
 
 module.exports = {
   ResumeData,
@@ -19,4 +20,5 @@ module.exports = {
   Project,
   ProfileLinks,
   Skills,
+  Achievement,
 };

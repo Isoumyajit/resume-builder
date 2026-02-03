@@ -79,6 +79,13 @@ export interface SkillsFormProps {
   form: UseFormReturn<ResumeFormData>;
 }
 
+// AchievementsForm component props
+export interface AchievementsFormProps {
+  form: UseFormReturn<ResumeFormData>;
+  fieldArray: UseFieldArrayReturn<ResumeFormData, "achievements">;
+  onAddAchievement: () => void;
+}
+
 // Props for InputIconField
 export interface InputIconFieldProps extends Omit<FormFieldProps, "children"> {
   icon: LucideIcon;

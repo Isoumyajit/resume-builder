@@ -3,12 +3,13 @@ import { SplitPane } from "./SplitPane";
 import { ResumeFormPanel } from "./ResumeFormPanel";
 import { PreviewPanel } from "./PreviewPanel";
 import type { ResumeBuilderLayoutProps } from "@/interfaces/components";
+import Footer from "./Footer";
 
 export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
   const { form, pdf, actions } = state;
 
   return (
-    <div className="rb-app h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+    <div className="rb-app h-[calc(100vh-38px)] flex flex-col bg-gray-200 dark:bg-gray-900">
       <Header
         onDownload={actions.downloadPdf}
         canDownload={!!pdf.url}
@@ -23,9 +24,11 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
               experienceArray={form.experienceArray}
               educationArray={form.educationArray}
               projectsArray={form.projectsArray}
+              achievementsArray={form.achievementsArray}
               addExperience={form.handlers.addExperience}
               addEducation={form.handlers.addEducation}
               addProject={form.handlers.addProject}
+              addAchievement={form.handlers.addAchievement}
               addBullet={form.handlers.addBullet}
               removeBullet={form.handlers.removeBullet}
               toggleCurrentlyWorking={form.handlers.toggleCurrentlyWorking}
@@ -42,6 +45,8 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
           }
         />
       </main>
+
+      <Footer />
     </div>
   );
 }

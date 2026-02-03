@@ -26,6 +26,7 @@ export type {
   ProjectsFormProps,
   ProfileLinksFormProps,
   SkillsFormProps,
+  AchievementsFormProps,
   CheckboxFieldProps,
   // Layout components
   HeaderProps,

@@ -28,7 +28,7 @@ export function EducationForm({
       action={
         <Button
           type="button"
-          variant="outline"
+          variant="default"
           size="sm"
           onClick={onAddEducation}
           className="gap-1 cursor-pointer"

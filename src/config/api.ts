@@ -58,13 +58,3 @@ export const ENV_INFO = {
   IS_DEVELOPMENT: import.meta.env.DEV,
   IS_PRODUCTION: import.meta.env.PROD,
 } as const;
-
-// Log configuration on import (only in development)
-if (ENV_INFO.IS_DEVELOPMENT) {
-  console.log("🔧 API Configuration:", {
-    baseUrl: API_CONFIG.BASE_URL,
-    version: API_CONFIG.VERSION,
-    basePath: API_CONFIG.BASE_PATH,
-    environment: ENV_INFO.NODE_ENV,
-  });
-}

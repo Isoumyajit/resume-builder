@@ -5,3 +5,4 @@ export { EducationForm } from "./EducationForm";
 export { ProjectsForm } from "./ProjectsForm";
 export { ProfileLinksForm } from "./ProfileLinksForm";
 export { SkillsForm } from "./SkillsForm";
+export { AchievementsForm } from "./AchievementsForm";

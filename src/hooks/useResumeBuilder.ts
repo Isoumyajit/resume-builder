@@ -14,9 +14,11 @@ export function useResumeBuilder() {
     experienceArray,
     educationArray,
     projectsArray,
+    achievementsArray,
     addExperience,
     addEducation,
     addProject,
+    addAchievement,
     addBullet,
     removeBullet,
     toggleCurrentlyWorking,
@@ -28,7 +30,6 @@ export function useResumeBuilder() {
 
   // Handle PDF generation from form data
   const handleGenerate = useCallback(() => {
-    console.log("Generating PDF", form.formState.errors);
     form.handleSubmit((data) => generate(data))();
   }, [form, generate]);
 
@@ -42,10 +43,12 @@ export function useResumeBuilder() {
       experienceArray,
       educationArray,
       projectsArray,
+      achievementsArray,
       handlers: {
         addExperience,
         addEducation,
         addProject,
+        addAchievement,
         addBullet,
         removeBullet,
         toggleCurrentlyWorking,

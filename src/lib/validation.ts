@@ -102,7 +102,6 @@ export const experienceSchema = z
     },
   )
   .refine((data) => {
-    // Validate endDate based on currentlyWorking status
     return isValidEndDateForWorkStatus(data.endDate, data.currentlyWorking);
   })
   .refine(
@@ -110,10 +109,8 @@ export const experienceSchema = z
       const startDate = parseDate(data.startDate);
       const endDate = parseDate(data.endDate);
 
-      // Skip validation if either date is invalid/unparseable
       if (!startDate || !endDate) return true;
 
-      // Start date should be <= end date (Present is treated as today)
       return startDate <= endDate;
     },
     {
@@ -186,6 +183,22 @@ export const skillsSchema = z.object({
   other: z.string().optional().default(""),
 });
 
+// Achievement Schema
+export const achievementSchema = z
+  .object({
+    id: z.string(),
+    bullet: z.string().min(1, "Achievement is required"),
+  })
+  .refine(
+    (data) => {
+      const charCountWithoutSpaces = data.bullet.replace(/\s/g, "").length;
+      return charCountWithoutSpaces <= 100;
+    },
+    {
+      path: ["bullet"],
+    },
+  );
+
 // Complete Resume Schema
 export const resumeSchema = z.object({
   personalInfo: personalInfoSchema,
@@ -194,6 +207,7 @@ export const resumeSchema = z.object({
   projects: z.array(projectSchema).optional().default([]),
   profileLinks: profileLinksSchema.optional().default({}),
   skills: skillsSchema,
+  achievements: z.array(achievementSchema).optional().default([]),
 });
 
 export type ResumeFormData = z.infer<typeof resumeSchema>;
