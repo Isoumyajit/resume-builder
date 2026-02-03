@@ -32,7 +32,7 @@ Requirements:
 - Professional, concise language
 - 4 bullet points
 - Each bullet point should be 250 characters max
-- Each bullet point should be a one oe two sentence bullet point
+- Each bullet point should be a one or two sentence bullet point
 - Each bullet point should be a professional, concise language
 - After one bullet point, add a new line
 
