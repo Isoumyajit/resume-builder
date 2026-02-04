@@ -1,0 +1,28 @@
+# =============================================================================
+# CODEOWNERS - Defines code ownership for pull request reviews
+# =============================================================================
+# These owners will be automatically requested for review when someone
+# opens a pull request that modifies code they own.
+#
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# =============================================================================
+
+# Default owner for everything in the repo
+* @Isoumyajit
+
+# Frontend
+/src/ @Isoumyajit
+/public/ @Isoumyajit
+package.json @Isoumyajit
+
+# Backend
+/server/ @Isoumyajit
+
+# CI/CD and DevOps
+/.github/ @Isoumyajit
+/Dockerfile @Isoumyajit
+/docker-compose*.yml @Isoumyajit
+
+# Documentation
+*.md @Isoumyajit
+/docs/ @Isoumyajit
