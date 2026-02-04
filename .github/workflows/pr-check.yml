@@ -196,23 +196,23 @@ jobs:
             exit 1
           fi
 
-          if [[ "${{ needs.frontend.result }}" == "failure" ]]; then
-            echo ""
-            echo "❌ Frontend checks failed"
-            exit 1
-          fi
+          # Consolidated failure checks for Frontend, Backend, and Docker
+          declare -A CHECK_RESULTS=(
+            ["Frontend"]="${{ needs.frontend.result }}"
+            ["Backend"]="${{ needs.backend.result }}"
+            ["Docker"]="${{ needs.docker.result }}"
+          )
 
-          if [[ "${{ needs.backend.result }}" == "failure" ]]; then
-            echo ""
-            echo "❌ Backend checks failed"
-            exit 1
-          fi
-
-          if [[ "${{ needs.docker.result }}" == "failure" ]]; then
-            echo ""
-            echo "❌ Docker build failed"
-            exit 1
-          fi
-
+          for CHECK_NAME in "${!CHECK_RESULTS[@]}"; do
+            if [[ "${CHECK_RESULTS[$CHECK_NAME]}" == "failure" ]]; then
+              echo ""
+              if [[ "$CHECK_NAME" == "Docker" ]]; then
+                echo "❌ Docker build failed"
+              else
+                echo "❌ $CHECK_NAME checks failed"
+              fi
+              exit 1
+            fi
+          done
           echo ""
           echo "✅ All checks passed!"
