@@ -1,7 +1,12 @@
 # =============================================================================
 # GitHub Actions - Prerequisites (Reusable Workflow)
 # =============================================================================
-# Validates branch naming convention for pull requests.
+# Validates branch naming convention and runs CodeQL security analysis.
+#
+# Flow:
+#   1. Validate branch name (RB-[type]-[description])
+#   2. Run CodeQL security scan
+#   3. Only if both pass → Unit tests can run
 #
 # Branch naming pattern: RB-[type]-[description]
 #   - Type: feature, fix, improvement
@@ -13,9 +18,6 @@
 #   ✅ RB-improvement-refactor-api
 #   ❌ RB-feature-add-v2-export (contains number)
 #   ❌ feature-add-export (missing RB prefix)
-#   ❌ RB-bugfix-something (invalid type)
-#
-# Note: PR approval from @Isoumyajit is configured in GitHub Branch Protection Rules
 # =============================================================================
 
 name: Prerequisites
@@ -26,10 +28,16 @@ on:
       branch-valid:
         description: "Whether branch name follows convention"
         value: ${{ jobs.validate-branch.outputs.valid }}
+      codeql-passed:
+        description: "Whether CodeQL analysis passed"
+        value: ${{ jobs.codeql.outputs.passed }}
+      all-passed:
+        description: "Whether all prerequisites passed"
+        value: ${{ jobs.summary.outputs.passed }}
 
 jobs:
   # ===========================================================================
-  # Validate Branch Name
+  # Step 1: Validate Branch Name
   # ===========================================================================
   validate-branch:
     name: Validate Branch Name
@@ -62,30 +70,92 @@ jobs:
             echo "  ✅ RB-fix-cors-issue"
             echo "  ✅ RB-improvement-refactor-api"
             echo ""
-            echo "Invalid examples:"
-            echo "  ❌ RB-feature-add-v2-export (contains number)"
-            echo "  ❌ feature-add-export (missing RB prefix)"
-            echo "  ❌ RB-bugfix-something (invalid type - use 'fix' instead)"
-            echo ""
             echo "valid=false" >> $GITHUB_OUTPUT
             exit 1
           fi
 
-      - name: Summary
-        if: always()
+  # ===========================================================================
+  # Step 2: Run CodeQL Security Analysis (Only if branch name is valid)
+  # ===========================================================================
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    needs: validate-branch
+    outputs:
+      passed: ${{ steps.result.outputs.passed }}
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: javascript-typescript
+            build-mode: none
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+      - name: Set Result
+        id: result
+        if: success()
         run: |
-          echo "## Branch Validation" >> $GITHUB_STEP_SUMMARY
+          echo "✅ CodeQL analysis passed"
+          echo "passed=true" >> $GITHUB_OUTPUT
+
+  # ===========================================================================
+  # Step 3: Summary
+  # ===========================================================================
+  summary:
+    name: Prerequisites Summary
+    runs-on: ubuntu-latest
+    needs: [validate-branch, codeql]
+    if: always()
+    outputs:
+      passed: ${{ steps.check.outputs.passed }}
+    steps:
+      - name: Check All Prerequisites
+        id: check
+        run: |
+          echo "## Prerequisites Check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** \`${{ github.head_ref }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch Name | ${{ needs.validate-branch.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| CodeQL | ${{ needs.codeql.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ steps.check.outputs.valid }}" == "true" ]]; then
-            echo "✅ Branch name follows convention" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.validate-branch.result }}" == "success" && "${{ needs.codeql.result }}" == "success" ]]; then
+            echo "✅ All prerequisites passed!" >> $GITHUB_STEP_SUMMARY
+            echo "passed=true" >> $GITHUB_OUTPUT
           else
-            echo "❌ Branch name does not follow convention" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Required Pattern" >> $GITHUB_STEP_SUMMARY
-            echo "\`RB-[feature|fix|improvement]-[description]\`" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Description**: lowercase letters and hyphens only" >> $GITHUB_STEP_SUMMARY
-            echo "- **No numbers allowed** in description" >> $GITHUB_STEP_SUMMARY
+            echo "❌ Prerequisites failed" >> $GITHUB_STEP_SUMMARY
+            echo "passed=false" >> $GITHUB_OUTPUT
+            
+            if [[ "${{ needs.validate-branch.result }}" != "success" ]]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Branch Naming Issue" >> $GITHUB_STEP_SUMMARY
+              echo "Branch must follow: \`RB-[feature|fix|improvement]-[description]\`" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            if [[ "${{ needs.codeql.result }}" != "success" ]]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### CodeQL Issue" >> $GITHUB_STEP_SUMMARY
+              echo "Security analysis found issues. Check the Security tab." >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            exit 1
           fi
