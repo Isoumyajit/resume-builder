@@ -1,0 +1,94 @@
+# =============================================================================
+# GitHub Actions - Prerequisites (Reusable Workflow)
+# =============================================================================
+# Validates branch naming convention for pull requests.
+#
+# Branch naming pattern: RB-[type]-[description]
+#   - Type: feature, fix, improvement
+#   - Description: lowercase letters, hyphens only (no numbers)
+#
+# Examples:
+#   ✅ RB-feature-add-pdf-export
+#   ✅ RB-fix-cors-issue
+#   ✅ RB-improvement-refactor-api
+#   ❌ RB-feature-add-v2-export (contains number)
+#   ❌ feature-add-export (missing RB prefix)
+#   ❌ RB-bugfix-something (invalid type)
+#
+# Note: PR approval from @Isoumyajit is configured in GitHub Branch Protection Rules
+# =============================================================================
+
+name: Prerequisites
+
+on:
+  workflow_call:
+    outputs:
+      branch-valid:
+        description: "Whether branch name follows convention"
+        value: ${{ jobs.validate-branch.outputs.valid }}
+
+permissions:
+  contents: read
+
+jobs:
+  # ===========================================================================
+  # Validate Branch Name
+  # ===========================================================================
+  validate-branch:
+    name: Validate Branch Name
+    runs-on: ubuntu-latest
+    outputs:
+      valid: ${{ steps.check.outputs.valid }}
+    steps:
+      - name: Check Branch Naming Convention
+        id: check
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          echo "Branch: $BRANCH_NAME"
+
+          # Pattern: RB-[feature|fix|improvement]-[lowercase-letters-and-hyphens-only]
+          PATTERN="^RB-(feature|fix|improvement)-[a-z]+(-[a-z]+)*$"
+
+          if [[ "$BRANCH_NAME" =~ $PATTERN ]]; then
+            echo "✅ Branch name follows convention: $BRANCH_NAME"
+            echo "valid=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Invalid branch name: $BRANCH_NAME"
+            echo ""
+            echo "Branch name must follow pattern: RB-[type]-[description]"
+            echo ""
+            echo "Valid types: feature, fix, improvement"
+            echo "Description: lowercase letters and hyphens only (NO numbers)"
+            echo ""
+            echo "Examples:"
+            echo "  ✅ RB-feature-add-pdf-export"
+            echo "  ✅ RB-fix-cors-issue"
+            echo "  ✅ RB-improvement-refactor-api"
+            echo ""
+            echo "Invalid examples:"
+            echo "  ❌ RB-feature-add-v2-export (contains number)"
+            echo "  ❌ feature-add-export (missing RB prefix)"
+            echo "  ❌ RB-bugfix-something (invalid type - use 'fix' instead)"
+            echo ""
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Branch Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.head_ref }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ steps.check.outputs.valid }}" == "true" ]]; then
+            echo "✅ Branch name follows convention" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Branch name does not follow convention" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Required Pattern" >> $GITHUB_STEP_SUMMARY
+            echo "\`RB-[feature|fix|improvement]-[description]\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Description**: lowercase letters and hyphens only" >> $GITHUB_STEP_SUMMARY
+            echo "- **No numbers allowed** in description" >> $GITHUB_STEP_SUMMARY
+          fi
