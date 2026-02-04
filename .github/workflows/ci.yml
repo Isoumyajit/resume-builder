@@ -1,0 +1,86 @@
+# =============================================================================
+# GitHub Actions - Main CI Pipeline
+# =============================================================================
+# Orchestrates the complete CI/CD pipeline for pushes to main:
+#   1. CodeQL Security Analysis
+#   2. Unit Tests (Frontend & Backend)
+#   3. Deploy to GCP Cloud Run (only if all checks pass)
+#
+# This ensures workflows run sequentially and deploy only happens after
+# all quality gates pass.
+# =============================================================================
+
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ===========================================================================
+  # Step 1: CodeQL Security Analysis
+  # ===========================================================================
+  codeql:
+    name: "Step 1: CodeQL"
+    uses: ./.github/workflows/_codeQL.yml
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+
+  # ===========================================================================
+  # Step 2: Unit Tests (runs after CodeQL passes)
+  # ===========================================================================
+  unit-tests:
+    name: "Step 2: Unit Tests"
+    needs: codeql
+    uses: ./.github/workflows/rb_unit-tests.yml
+    permissions:
+      contents: read
+
+  # ===========================================================================
+  # Step 3: Deploy (runs after Unit Tests pass)
+  # ===========================================================================
+  deploy:
+    name: "Step 3: Deploy"
+    needs: unit-tests
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: production
+    secrets:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+
+  # ===========================================================================
+  # Pipeline Summary
+  # ===========================================================================
+  summary:
+    name: Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [codeql, unit-tests, deploy]
+    if: always()
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 1. CodeQL | ${{ needs.codeql.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 2. Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅ Passed' || needs.unit-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 3. Deploy | ${{ needs.deploy.result == 'success' && '✅ Passed' || needs.deploy.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check Pipeline Status
+        run: |
+          if [[ "${{ needs.deploy.result }}" == "success" ]]; then
+            echo "✅ Pipeline completed successfully!"
+          else
+            echo "❌ Pipeline failed or was skipped"
+            exit 1
+          fi
