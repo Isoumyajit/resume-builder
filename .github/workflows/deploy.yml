@@ -45,8 +45,6 @@ on:
         required: true
       GCP_REGION:
         required: true
-      AR_REPOSITORY:
-        required: true
       GCP_WORKLOAD_IDENTITY_PROVIDER:
         required: true
 
