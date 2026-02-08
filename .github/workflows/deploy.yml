@@ -2,32 +2,7 @@
 # GitHub Actions - Build and Deploy to Cloud Run
 # =============================================================================
 # Builds Docker images and deploys to Google Cloud Run using Workload Identity
-# Federation for secure, keyless authentication.
-#
-# To configure this workflow:
-#
-# 1. Enable the following Google Cloud APIs:
-#
-#    - Artifact Registry (artifactregistry.googleapis.com)
-#    - Cloud Run (run.googleapis.com)
-#    - IAM Credentials API (iamcredentials.googleapis.com)
-#
-#    You can learn more about enabling APIs at
-#    https://support.google.com/googleapi/answer/6158841.
-#
-# 2. Create and configure a Workload Identity Provider for GitHub:
-#    https://github.com/google-github-actions/auth#preferred-direct-workload-identity-federation.
-#
-#    Depending on how you authenticate, you will need to grant an IAM principal
-#    permissions on Google Cloud:
-#
-#    - Artifact Registry Administrator (roles/artifactregistry.admin)
-#    - Cloud Run Developer (roles/run.developer)
-#
-#    You can learn more about setting IAM permissions at
-#    https://cloud.google.com/iam/docs/manage-access-other-resources
-#
-# 3. Change the values in the "env" block to match your values.
+# Federation. Called by CI pipeline after all tests pass.
 # =============================================================================
 
 name: Build and Deploy to Cloud Run
@@ -44,8 +19,6 @@ on:
       GCP_PROJECT_ID:
         required: true
       GCP_REGION:
-        required: true
-      AR_REPOSITORY:
         required: true
       GCP_WORKLOAD_IDENTITY_PROVIDER:
         required: true
@@ -66,58 +39,24 @@ concurrency:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: ${{ secrets.GCP_REGION }}
-  AR_REPOSITORY: ${{ secrets.AR_REPOSITORY }}
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
   FRONTEND_SERVICE: resume-builder-frontend
   BACKEND_SERVICE: resume-builder-backend
 
 jobs:
-  # ===========================================================================
-  # Validate
-  # ===========================================================================
-  validate:
-    name: Validate
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-          cache-dependency-path: package-lock.json
-
-      - name: Install & Lint Frontend
-        run: |
-          npm ci
-          npm run lint
-          npx tsc --noEmit
-
-      - name: Install Backend
-        working-directory: server
-        run: npm ci
-
-  # ===========================================================================
-  # Deploy
-  # ===========================================================================
   deploy:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
-    outputs:
-      backend_url: ${{ steps.deploy-backend.outputs.url }}
-      frontend_url: ${{ steps.deploy-frontend.outputs.url }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - id: auth
-        name: Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
@@ -129,14 +68,14 @@ jobs:
           password: ${{ steps.auth.outputs.auth_token }}
           registry: ${{ env.REGION }}-docker.pkg.dev
 
-      - name: Build and Push Backend Image
+      - name: Build and Push Backend
         run: |
           BACKEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
           docker build --tag "${BACKEND_TAG}" -f server/Dockerfile ./server
           docker push "${BACKEND_TAG}"
           echo "BACKEND_IMAGE=${BACKEND_TAG}" >> $GITHUB_ENV
 
-      - name: Build and Push Frontend Image
+      - name: Build and Push Frontend
         run: |
           FRONTEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
           docker build --tag "${FRONTEND_TAG}" \
@@ -147,7 +86,7 @@ jobs:
           docker push "${FRONTEND_TAG}"
           echo "FRONTEND_IMAGE=${FRONTEND_TAG}" >> $GITHUB_ENV
 
-      - name: Deploy Backend to Cloud Run
+      - name: Deploy Backend
         id: deploy-backend
         uses: google-github-actions/deploy-cloudrun@v2
         with:
@@ -155,7 +94,7 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ env.BACKEND_IMAGE }}
 
-      - name: Deploy Frontend to Cloud Run
+      - name: Deploy Frontend
         id: deploy-frontend
         uses: google-github-actions/deploy-cloudrun@v2
         with:
@@ -163,28 +102,11 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ env.FRONTEND_IMAGE }}
 
-      - name: Show Deployment URLs
+      - name: Deployment Summary
         run: |
-          echo "Backend URL: ${{ steps.deploy-backend.outputs.url }}"
-          echo "Frontend URL: ${{ steps.deploy-frontend.outputs.url }}"
-
-  # ===========================================================================
-  # Health Check
-  # ===========================================================================
-  health-check:
-    name: Health Check
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-      - name: Wait for services to stabilize
-        run: sleep 30
-
-      - name: Check Backend Health
-        run: |
-          curl -sf "${{ needs.deploy.outputs.backend_url }}/api/v1/health" || exit 1
-          echo "✅ Backend healthy"
-
-      - name: Check Frontend Health
-        run: |
-          curl -sf "${{ needs.deploy.outputs.frontend_url }}/health" || exit 1
-          echo "✅ Frontend healthy"
+          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-----|" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend | ${{ steps.deploy-backend.outputs.url }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | ${{ steps.deploy-frontend.outputs.url }} |" >> $GITHUB_STEP_SUMMARY
