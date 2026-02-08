@@ -99,7 +99,6 @@ jobs:
     needs: validate
     permissions:
       contents: read
-      id-token: write
 
     steps:
       - name: Validate Required Secrets
@@ -265,7 +264,6 @@ jobs:
     needs: pre-deploy-checks
     permissions:
       contents: read
-      id-token: write
 
     steps:
       - name: Checkout
