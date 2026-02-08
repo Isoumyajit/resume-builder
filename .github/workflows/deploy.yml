@@ -94,6 +94,12 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ env.BACKEND_IMAGE }}
           project_id: ${{ env.PROJECT_ID }}
+          flags: |
+            --port=8080
+            --allow-unauthenticated
+          env_vars: |
+            NODE_ENV=production
+            PORT=8080
 
       - name: Deploy Frontend
         id: deploy-frontend
@@ -103,6 +109,9 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ env.FRONTEND_IMAGE }}
           project_id: ${{ env.PROJECT_ID }}
+          flags: |
+            --port=80
+            --allow-unauthenticated
 
       - name: Deployment Summary
         run: |
