@@ -57,7 +57,7 @@ concurrency:
 
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_REGION: ${{ secrets.GCP_REGION || 'us-central1' }}
+  GCP_REGION: ${{ secrets.GCP_REGION }}
   AR_REPOSITORY: ${{ secrets.AR_REPOSITORY }}
   FRONTEND_SERVICE: resume-builder-frontend
   BACKEND_SERVICE: resume-builder-backend
@@ -91,12 +91,178 @@ jobs:
         run: npm ci
 
   # ===========================================================================
+  # Pre-Deploy Checks
+  # ===========================================================================
+  pre-deploy-checks:
+    name: Pre-Deploy Checks
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Validate Required Secrets
+        run: |
+          echo "Validating required secrets..."
+          MISSING_SECRETS=""
+          
+          if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then
+            MISSING_SECRETS="${MISSING_SECRETS}\n  - GCP_PROJECT_ID"
+          fi
+          
+          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
+            MISSING_SECRETS="${MISSING_SECRETS}\n  - GCP_SA_KEY"
+          fi
+          
+          if [ -z "${{ secrets.GCP_REGION }}" ]; then
+            MISSING_SECRETS="${MISSING_SECRETS}\n  - GCP_REGION"
+          fi
+          
+          if [ -z "${{ secrets.AR_REPOSITORY }}" ]; then
+            MISSING_SECRETS="${MISSING_SECRETS}\n  - AR_REPOSITORY"
+          fi
+          
+          if [ -n "$MISSING_SECRETS" ]; then
+            echo "::error::Missing required secrets:${MISSING_SECRETS}"
+            exit 1
+          fi
+          
+          echo "✅ All required secrets are configured"
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Enable Required GCP APIs
+        run: |
+          echo "Checking and enabling required GCP APIs..."
+          
+          REQUIRED_APIS=(
+            "artifactregistry.googleapis.com"
+            "run.googleapis.com"
+            "iamcredentials.googleapis.com"
+          )
+          
+          ENABLED_APIS=$(gcloud services list --enabled --format="value(config.name)" 2>/dev/null || echo "")
+          
+          for api in "${REQUIRED_APIS[@]}"; do
+            if echo "$ENABLED_APIS" | grep -q "$api"; then
+              echo "✅ $api is already enabled"
+            else
+              echo "🔄 Enabling $api..."
+              gcloud services enable "$api" --quiet
+              if [ $? -eq 0 ]; then
+                echo "✅ $api enabled successfully"
+              else
+                echo "::error::Failed to enable $api"
+                exit 1
+              fi
+            fi
+          done
+          
+          echo "✅ All required GCP APIs are enabled"
+
+      - name: Create Artifact Registry Repository (if not exists)
+        run: |
+          echo "Checking Artifact Registry repository..."
+          
+          REPO_EXISTS=$(gcloud artifacts repositories describe ${{ env.AR_REPOSITORY }} \
+            --location=${{ env.GCP_REGION }} \
+            --format="value(name)" 2>/dev/null || echo "")
+          
+          if [ -z "$REPO_EXISTS" ]; then
+            echo "🔄 Repository '${{ env.AR_REPOSITORY }}' not found. Creating..."
+            
+            gcloud artifacts repositories create ${{ env.AR_REPOSITORY }} \
+              --repository-format=docker \
+              --location=${{ env.GCP_REGION }} \
+              --project=${{ env.GCP_PROJECT_ID }} \
+              --description="Resume Builder Docker images" \
+              --quiet
+            
+            if [ $? -eq 0 ]; then
+              echo "✅ Repository '${{ env.AR_REPOSITORY }}' created successfully"
+            else
+              echo "::error::Failed to create Artifact Registry repository"
+              exit 1
+            fi
+          else
+            echo "✅ Artifact Registry repository exists: $REPO_EXISTS"
+          fi
+
+      - name: Ensure Service Account Permissions
+        run: |
+          echo "Checking and granting service account permissions..."
+          
+          # Get the service account email from the authenticated credentials
+          SA_EMAIL=$(gcloud config get-value account 2>/dev/null)
+          echo "Service Account: $SA_EMAIL"
+          
+          # Define required roles
+          REQUIRED_ROLES=(
+            "roles/artifactregistry.writer"
+            "roles/run.developer"
+            "roles/iam.serviceAccountUser"
+          )
+          
+          # Get current IAM policy bindings for the service account
+          CURRENT_ROLES=$(gcloud projects get-iam-policy ${{ env.GCP_PROJECT_ID }} \
+            --flatten="bindings[].members" \
+            --filter="bindings.members:serviceAccount:${SA_EMAIL}" \
+            --format="value(bindings.role)" 2>/dev/null || echo "")
+          
+          for role in "${REQUIRED_ROLES[@]}"; do
+            if echo "$CURRENT_ROLES" | grep -q "$role"; then
+              echo "✅ $role is already granted"
+            else
+              echo "🔄 Granting $role..."
+              gcloud projects add-iam-policy-binding ${{ env.GCP_PROJECT_ID }} \
+                --member="serviceAccount:${SA_EMAIL}" \
+                --role="$role" \
+                --quiet 2>/dev/null
+              
+              if [ $? -eq 0 ]; then
+                echo "✅ $role granted successfully"
+              else
+                echo "::warning::Could not grant $role (may require elevated permissions)"
+                echo "Manually grant with:"
+                echo "  gcloud projects add-iam-policy-binding ${{ env.GCP_PROJECT_ID }} \\"
+                echo "    --member='serviceAccount:${SA_EMAIL}' \\"
+                echo "    --role='$role'"
+              fi
+            fi
+          done
+          
+          echo ""
+          echo "✅ Service account permissions configured"
+
+      - name: Pre-Deploy Summary
+        run: |
+          echo "========================================"
+          echo "Pre-Deploy Checks Complete"
+          echo "========================================"
+          echo "Project:    ${{ env.GCP_PROJECT_ID }}"
+          echo "Region:     ${{ env.GCP_REGION }}"
+          echo "Repository: ${{ env.AR_REPOSITORY }}"
+          echo "Frontend:   ${{ env.FRONTEND_SERVICE }}"
+          echo "Backend:    ${{ env.BACKEND_SERVICE }}"
+          echo "========================================"
+
+  # ===========================================================================
   # Deploy
   # ===========================================================================
   deploy:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
-    needs: validate
+    needs: pre-deploy-checks
     permissions:
       contents: read
       id-token: write
