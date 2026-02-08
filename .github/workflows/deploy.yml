@@ -45,6 +45,8 @@ on:
         required: true
       GCP_REGION:
         required: true
+      AR_REPOSITORY:
+        required: true
       GCP_WORKLOAD_IDENTITY_PROVIDER:
         required: true
 
@@ -98,58 +100,11 @@ jobs:
         run: npm ci
 
   # ===========================================================================
-  # Pre-Deploy Checks
-  # ===========================================================================
-  pre-deploy-checks:
-    name: Verify Artifact Registry Access
-    runs-on: ubuntu-latest
-    needs: validate
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - id: auth
-        name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
-
-      - name: Docker Auth
-        uses: docker/login-action@v3
-        with:
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.auth_token }}
-          registry: ${{ env.REGION }}-docker.pkg.dev
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.PROJECT_ID }}
-
-      - name: Verify Artifact Registry Access
-        run: |
-          echo "Verifying Artifact Registry access..."
-
-          gcloud artifacts repositories describe ${{ env.AR_REPOSITORY }} \
-            --location=${{ env.REGION }} \
-            --format="value(name)"
-
-          if [ $? -eq 0 ]; then
-            echo "✅ Artifact Registry access verified"
-          else
-            echo "::error::Cannot access Artifact Registry repository '${{ env.AR_REPOSITORY }}'"
-            echo "Ensure the repository exists and service account has 'roles/artifactregistry.writer' permission"
-            exit 1
-          fi
-
-  # ===========================================================================
   # Deploy
   # ===========================================================================
   deploy:
     name: Deploy to Cloud Run
     runs-on: ubuntu-latest
-    needs: pre-deploy-checks
     permissions:
       contents: read
       id-token: write
@@ -176,14 +131,14 @@ jobs:
 
       - name: Build and Push Backend Image
         run: |
-          BACKEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
+          BACKEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
           docker build --tag "${BACKEND_TAG}" -f server/Dockerfile ./server
           docker push "${BACKEND_TAG}"
           echo "BACKEND_IMAGE=${BACKEND_TAG}" >> $GITHUB_ENV
 
       - name: Build and Push Frontend Image
         run: |
-          FRONTEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
+          FRONTEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
           docker build --tag "${FRONTEND_TAG}" \
             --build-arg VITE_API_URL=https://${{ env.BACKEND_SERVICE }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app \
             --build-arg VITE_API_VERSION=v1 \
