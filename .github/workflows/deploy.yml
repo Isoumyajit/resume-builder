@@ -93,6 +93,7 @@ jobs:
           service: ${{ env.BACKEND_SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ env.BACKEND_IMAGE }}
+          project_id: ${{ env.PROJECT_ID }}
 
       - name: Deploy Frontend
         id: deploy-frontend
@@ -101,6 +102,7 @@ jobs:
           service: ${{ env.FRONTEND_SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ env.FRONTEND_IMAGE }}
+          project_id: ${{ env.PROJECT_ID }}
 
       - name: Deployment Summary
         run: |
