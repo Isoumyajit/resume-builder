@@ -1,29 +1,36 @@
 # =============================================================================
-# GitHub Actions - Deploy to GCP Cloud Run (Reusable Workflow)
+# GitHub Actions - Build and Deploy to Cloud Run
 # =============================================================================
-# Builds Docker images and deploys to Google Cloud Run.
-# Called by the main CI workflow after all checks pass.
+# Builds Docker images and deploys to Google Cloud Run using Workload Identity
+# Federation for secure, keyless authentication.
 #
-# Required GitHub Secrets:
-#   - GCP_PROJECT_ID: Your GCP project ID
-#   - GCP_SA_KEY: Service account JSON key (base64 encoded)
-#   - GCP_REGION: GCP region (e.g., us-central1)
+# To configure this workflow:
 #
-# Required Setup:
-#   1. Enable the following Google Cloud APIs:
-#      - Artifact Registry (artifactregistry.googleapis.com)
-#      - Cloud Run (run.googleapis.com)
-#      - IAM Credentials API (iamcredentials.googleapis.com)
+# 1. Enable the following Google Cloud APIs:
 #
-#   2. Create and configure a Workload Identity Provider for GitHub:
-#      https://github.com/google-github-actions/auth#preferred-direct-workload-identity-federation
+#    - Artifact Registry (artifactregistry.googleapis.com)
+#    - Cloud Run (run.googleapis.com)
+#    - IAM Credentials API (iamcredentials.googleapis.com)
 #
-#   3. Grant IAM permissions to the service account:
-#      - Artifact Registry Administrator (roles/artifactregistry.admin)
-#      - Cloud Run Developer (roles/run.developer)
+#    You can learn more about enabling APIs at
+#    https://support.google.com/googleapi/answer/6158841.
+#
+# 2. Create and configure a Workload Identity Provider for GitHub:
+#    https://github.com/google-github-actions/auth#preferred-direct-workload-identity-federation.
+#
+#    Depending on how you authenticate, you will need to grant an IAM principal
+#    permissions on Google Cloud:
+#
+#    - Artifact Registry Administrator (roles/artifactregistry.admin)
+#    - Cloud Run Developer (roles/run.developer)
+#
+#    You can learn more about setting IAM permissions at
+#    https://cloud.google.com/iam/docs/manage-access-other-resources
+#
+# 3. Change the values in the "env" block to match your values.
 # =============================================================================
 
-name: Deploy to GCP Cloud Run
+name: Build and Deploy to Cloud Run
 
 on:
   workflow_call:
@@ -36,12 +43,13 @@ on:
     secrets:
       GCP_PROJECT_ID:
         required: true
-      GCP_SA_KEY:
-        required: true
       GCP_REGION:
-        required: false
+        required: true
+      AR_REPOSITORY:
+        required: true
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
 
-  # Allow manual triggers
   workflow_dispatch:
     inputs:
       environment:
@@ -56,9 +64,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_REGION: ${{ secrets.GCP_REGION }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.GCP_REGION }}
   AR_REPOSITORY: ${{ secrets.AR_REPOSITORY }}
+  WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
   FRONTEND_SERVICE: resume-builder-frontend
   BACKEND_SERVICE: resume-builder-backend
 
@@ -99,30 +108,35 @@ jobs:
     needs: validate
     permissions:
       contents: read
+      id-token: write
 
     steps:
-      - name: Authenticate to Google Cloud
+      - id: auth
+        name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+
+      - name: Docker Auth
+        uses: docker/login-action@v3
+        with:
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.auth_token }}
+          registry: ${{ env.REGION }}-docker.pkg.dev
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
+          project_id: ${{ env.PROJECT_ID }}
 
       - name: Verify Artifact Registry Access
         run: |
           echo "Verifying Artifact Registry access..."
-          
-          # Configure Docker auth
-          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
-          
-          # Check repository exists and we have access
+
           gcloud artifacts repositories describe ${{ env.AR_REPOSITORY }} \
-            --location=${{ env.GCP_REGION }} \
+            --location=${{ env.REGION }} \
             --format="value(name)"
-          
+
           if [ $? -eq 0 ]; then
             echo "✅ Artifact Registry access verified"
           else
@@ -140,38 +154,40 @@ jobs:
     needs: pre-deploy-checks
     permissions:
       contents: read
+      id-token: write
+    outputs:
+      backend_url: ${{ steps.deploy-backend.outputs.url }}
+      frontend_url: ${{ steps.deploy-frontend.outputs.url }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
-        id: auth
+      - id: auth
+        name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+      - name: Docker Auth
+        uses: docker/login-action@v3
         with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
-
-      - name: Configure Docker for Artifact Registry
-        run: |
-          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.auth_token }}
+          registry: ${{ env.REGION }}-docker.pkg.dev
 
       - name: Build and Push Backend Image
         run: |
-          BACKEND_TAG="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
-          docker build -t "${BACKEND_TAG}" -f server/Dockerfile ./server
+          BACKEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
+          docker build --tag "${BACKEND_TAG}" -f server/Dockerfile ./server
           docker push "${BACKEND_TAG}"
           echo "BACKEND_IMAGE=${BACKEND_TAG}" >> $GITHUB_ENV
 
       - name: Build and Push Frontend Image
         run: |
-          FRONTEND_TAG="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
-          docker build -t "${FRONTEND_TAG}" \
-            --build-arg VITE_API_URL=https://${{ env.BACKEND_SERVICE }}-${{ env.GCP_PROJECT_ID }}.${{ env.GCP_REGION }}.run.app \
+          FRONTEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
+          docker build --tag "${FRONTEND_TAG}" \
+            --build-arg VITE_API_URL=https://${{ env.BACKEND_SERVICE }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app \
             --build-arg VITE_API_VERSION=v1 \
             --build-arg VITE_NODE_ENV=production \
             -f Dockerfile .
@@ -183,7 +199,7 @@ jobs:
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.BACKEND_SERVICE }}
-          region: ${{ env.GCP_REGION }}
+          region: ${{ env.REGION }}
           image: ${{ env.BACKEND_IMAGE }}
 
       - name: Deploy Frontend to Cloud Run
@@ -191,7 +207,7 @@ jobs:
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.FRONTEND_SERVICE }}
-          region: ${{ env.GCP_REGION }}
+          region: ${{ env.REGION }}
           image: ${{ env.FRONTEND_IMAGE }}
 
       - name: Show Deployment URLs
@@ -212,10 +228,10 @@ jobs:
 
       - name: Check Backend Health
         run: |
-          curl -sf "https://${{ env.BACKEND_SERVICE }}-${{ env.GCP_PROJECT_ID }}.${{ env.GCP_REGION }}.run.app/api/v1/health" || exit 1
-          echo "Backend healthy"
+          curl -sf "${{ needs.deploy.outputs.backend_url }}/api/v1/health" || exit 1
+          echo "✅ Backend healthy"
 
       - name: Check Frontend Health
         run: |
-          curl -sf "https://${{ env.FRONTEND_SERVICE }}-${{ env.GCP_PROJECT_ID }}.${{ env.GCP_REGION }}.run.app/health" || exit 1
-          echo "Frontend healthy"
+          curl -sf "${{ needs.deploy.outputs.frontend_url }}/health" || exit 1
+          echo "✅ Frontend healthy"
