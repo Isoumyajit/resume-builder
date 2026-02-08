@@ -8,12 +8,24 @@
 #   - GCP_PROJECT_ID: Your GCP project ID
 #   - GCP_SA_KEY: Service account JSON key (base64 encoded)
 #   - GCP_REGION: GCP region (e.g., us-central1)
+#
+# Required Setup:
+#   1. Enable the following Google Cloud APIs:
+#      - Artifact Registry (artifactregistry.googleapis.com)
+#      - Cloud Run (run.googleapis.com)
+#      - IAM Credentials API (iamcredentials.googleapis.com)
+#
+#   2. Create and configure a Workload Identity Provider for GitHub:
+#      https://github.com/google-github-actions/auth#preferred-direct-workload-identity-federation
+#
+#   3. Grant IAM permissions to the service account:
+#      - Artifact Registry Administrator (roles/artifactregistry.admin)
+#      - Cloud Run Developer (roles/run.developer)
 # =============================================================================
 
 name: Deploy to GCP Cloud Run
 
 on:
-  # Allow this workflow to be called by other workflows
   workflow_call:
     inputs:
       environment:
@@ -46,7 +58,7 @@ concurrency:
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GCP_REGION: ${{ secrets.GCP_REGION || 'us-central1' }}
-  AR_REPOSITORY: resume-builder
+  AR_REPOSITORY: ${{ secrets.AR_REPOSITORY }}
   FRONTEND_SERVICE: resume-builder-frontend
   BACKEND_SERVICE: resume-builder-backend
 
@@ -58,7 +70,8 @@ jobs:
     name: Validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -78,122 +91,73 @@ jobs:
         run: npm ci
 
   # ===========================================================================
-  # Build & Push Images
-  # ===========================================================================
-  build:
-    name: Build Images
-    runs-on: ubuntu-latest
-    needs: validate
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Authenticate to GCP
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Artifact Registry
-        run: |-
-          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
-
-      - name: Build & Push Frontend
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: |
-            ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/frontend:${{ github.sha }}
-            ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/frontend:latest
-          build-args: |
-            VITE_API_URL=https://${{ env.BACKEND_SERVICE }}-${{ env.GCP_PROJECT_ID }}.${{ env.GCP_REGION }}.run.app
-            VITE_API_VERSION=v1
-            VITE_NODE_ENV=production
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build & Push Backend
-        uses: docker/build-push-action@v5
-        with:
-          context: ./server
-          file: ./server/Dockerfile
-          push: true
-          tags: |
-            ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/backend:${{ github.sha }}
-            ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/backend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # ===========================================================================
-  # Deploy to Cloud Run
+  # Deploy
   # ===========================================================================
   deploy:
-    name: Deploy
+    name: Deploy to Cloud Run
     runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: ${{ inputs.environment || 'production' }}
-      url: ${{ steps.deploy-frontend.outputs.url }}
-    steps:
-      - uses: actions/checkout@v4
+    needs: validate
+    permissions:
+      contents: read
+      id-token: write
 
-      - name: Authenticate to GCP
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Setup gcloud
+      - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Deploy Backend
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build and Push Backend Image
+        run: |
+          BACKEND_TAG="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
+          docker build -t "${BACKEND_TAG}" -f server/Dockerfile ./server
+          docker push "${BACKEND_TAG}"
+          echo "BACKEND_IMAGE=${BACKEND_TAG}" >> $GITHUB_ENV
+
+      - name: Build and Push Frontend Image
+        run: |
+          FRONTEND_TAG="${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
+          docker build -t "${FRONTEND_TAG}" \
+            --build-arg VITE_API_URL=https://${{ env.BACKEND_SERVICE }}-${{ env.GCP_PROJECT_ID }}.${{ env.GCP_REGION }}.run.app \
+            --build-arg VITE_API_VERSION=v1 \
+            --build-arg VITE_NODE_ENV=production \
+            -f Dockerfile .
+          docker push "${FRONTEND_TAG}"
+          echo "FRONTEND_IMAGE=${FRONTEND_TAG}" >> $GITHUB_ENV
+
+      - name: Deploy Backend to Cloud Run
         id: deploy-backend
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.BACKEND_SERVICE }}
           region: ${{ env.GCP_REGION }}
-          image: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/backend:${{ github.sha }}
-          flags: |
-            --memory=1Gi
-            --cpu=1
-            --min-instances=0
-            --max-instances=5
-            --timeout=300s
-            --allow-unauthenticated
-          env_vars: |
-            NODE_ENV=production
-            LOG_LEVEL=info
-            PDF_METHOD=puppeteer
+          image: ${{ env.BACKEND_IMAGE }}
 
-      - name: Deploy Frontend
+      - name: Deploy Frontend to Cloud Run
         id: deploy-frontend
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.FRONTEND_SERVICE }}
           region: ${{ env.GCP_REGION }}
-          image: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPOSITORY }}/frontend:${{ github.sha }}
-          flags: |
-            --memory=256Mi
-            --cpu=1
-            --min-instances=0
-            --max-instances=10
-            --timeout=60s
-            --allow-unauthenticated
+          image: ${{ env.FRONTEND_IMAGE }}
 
-      - name: Summary
+      - name: Show Deployment URLs
         run: |
-          echo "## Deployment Complete" >> $GITHUB_STEP_SUMMARY
-          echo "- Frontend: ${{ steps.deploy-frontend.outputs.url }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Backend: ${{ steps.deploy-backend.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "Backend URL: ${{ steps.deploy-backend.outputs.url }}"
+          echo "Frontend URL: ${{ steps.deploy-frontend.outputs.url }}"
 
   # ===========================================================================
   # Health Check
@@ -203,13 +167,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     steps:
-      - name: Wait & Check Backend
+      - name: Wait for services to stabilize
+        run: sleep 30
+
+      - name: Check Backend Health
         run: |
-          sleep 30
           curl -sf "https://${{ env.BACKEND_SERVICE }}-${{ env.GCP_PROJECT_ID }}.${{ env.GCP_REGION }}.run.app/api/v1/health" || exit 1
           echo "Backend healthy"
 
-      - name: Check Frontend
+      - name: Check Frontend Health
         run: |
           curl -sf "https://${{ env.FRONTEND_SERVICE }}-${{ env.GCP_PROJECT_ID }}.${{ env.GCP_REGION }}.run.app/health" || exit 1
           echo "Frontend healthy"
