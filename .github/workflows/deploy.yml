@@ -95,7 +95,9 @@ jobs:
           image: ${{ env.BACKEND_IMAGE }}
           project_id: ${{ env.PROJECT_ID }}
           flags: --allow-unauthenticated
-          env_vars: NODE_ENV=production
+          env_vars: |
+            NODE_ENV=production
+            FRONTEND_URL=*
 
       - name: Deploy Frontend
         id: deploy-frontend
