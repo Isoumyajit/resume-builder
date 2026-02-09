@@ -90,7 +90,7 @@ jobs:
         with:
           service: ${{ env.BACKEND_SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+          image: ${{ env.BACKEND_SERVICE }}
           project_id: ${{ env.PROJECT_ID }}
 
       - name: Deploy Frontend
@@ -99,7 +99,7 @@ jobs:
         with:
           service: ${{ env.FRONTEND_SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
+          image: ${{ env.FRONTEND_SERVICE }}
           project_id: ${{ env.PROJECT_ID }}
           flags: --port=80 --allow-unauthenticated
 
