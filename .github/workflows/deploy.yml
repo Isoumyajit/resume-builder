@@ -70,19 +70,21 @@ jobs:
 
       - name: Build and Push Backend
         run: |
-          BACKEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/resume-builder/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
-          docker build --tag "${BACKEND_TAG}" -f server/Dockerfile ./server
-          docker push "${BACKEND_TAG}"
+          BACKEND_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/resume-builder/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
+          docker build --tag "${BACKEND_IMAGE}" -f server/Dockerfile ./server
+          docker push "${BACKEND_IMAGE}"
+          echo "BACKEND_IMAGE=${BACKEND_IMAGE}" >> $GITHUB_ENV
 
       - name: Build and Push Frontend
         run: |
-          FRONTEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/resume-builder/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
-          docker build --tag "${FRONTEND_TAG}" \
+          FRONTEND_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/resume-builder/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
+          docker build --tag "${FRONTEND_IMAGE}" \
             --build-arg VITE_API_URL=https://${{ env.BACKEND_SERVICE }}-${{ env.PROJECT_ID }}.${{ env.REGION }}.run.app \
             --build-arg VITE_API_VERSION=v1 \
             --build-arg VITE_NODE_ENV=production \
             -f Dockerfile .
-          docker push "${FRONTEND_TAG}"
+          docker push "${FRONTEND_IMAGE}"
+          echo "FRONTEND_IMAGE=${FRONTEND_IMAGE}" >> $GITHUB_ENV
 
       - name: Deploy Backend
         id: deploy-backend
@@ -90,8 +92,10 @@ jobs:
         with:
           service: ${{ env.BACKEND_SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.BACKEND_SERVICE }}
+          image: ${{ env.BACKEND_IMAGE }}
           project_id: ${{ env.PROJECT_ID }}
+          flags: --allow-unauthenticated --memory=2Gi --cpu=1
+          env_vars: NODE_ENV=production
 
       - name: Deploy Frontend
         id: deploy-frontend
@@ -99,7 +103,7 @@ jobs:
         with:
           service: ${{ env.FRONTEND_SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.FRONTEND_SERVICE }}
+          image: ${{ env.FRONTEND_IMAGE }}
           project_id: ${{ env.PROJECT_ID }}
           flags: --port=80 --allow-unauthenticated
 

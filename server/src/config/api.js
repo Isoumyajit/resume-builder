@@ -54,18 +54,9 @@ const VERSION_INFO = {
 
 // Validation functions
 function validateConfig() {
-  const required = ["PORT", "FRONTEND_URL"];
-  const missing = required.filter(
-    (key) => !process.env[key] && !API_CONFIG[key],
-  );
-
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(", ")}`,
-    );
-  }
-
   console.log("✅ API configuration validated");
+  console.log(`   PORT: ${API_CONFIG.PORT}`);
+  console.log(`   CORS Origin: ${API_CONFIG.CORS.ORIGIN}`);
 }
 
 // Export configuration
