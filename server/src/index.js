@@ -7,36 +7,26 @@ const { createApp } = require("./app");
 const { API_CONFIG } = require("./config/api");
 const { loggers } = require("./config/logger");
 
+const PORT = parseInt(process.env.PORT, 10) || 8080;
+
+console.log(`[STARTUP] PORT from env: ${process.env.PORT}`);
+console.log(`[STARTUP] Using PORT: ${PORT}`);
+console.log(`[STARTUP] NODE_ENV: ${process.env.NODE_ENV}`);
+
 const app = createApp();
 
-const server = app.listen(API_CONFIG.PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`[STARTUP] Server listening on 0.0.0.0:${PORT}`);
+
   loggers.app.info(
     {
       event: "server_start",
-      port: API_CONFIG.PORT,
+      port: PORT,
       version: API_CONFIG.VERSION,
       environment: API_CONFIG.NODE_ENV,
-      endpoints: {
-        health: `${API_CONFIG.BASE_URL}${API_CONFIG.BASE_PATH}/health`,
-        generatePdf: `${API_CONFIG.BASE_URL}${API_CONFIG.BASE_PATH}/generate-pdf`,
-        api: `${API_CONFIG.BASE_URL}/api`,
-      },
     },
-    `🚀 Resume Builder Server running on port ${API_CONFIG.PORT}`,
+    `🚀 Resume Builder Server running on port ${PORT}`,
   );
-
-  if (API_CONFIG.NODE_ENV === "development") {
-    console.log(`📡 API Version: ${API_CONFIG.VERSION}`);
-    console.log(`🌍 Environment: ${API_CONFIG.NODE_ENV}`);
-    console.log(
-      `📊 Health check: ${API_CONFIG.BASE_URL}${API_CONFIG.BASE_PATH}/health`,
-    );
-    console.log(
-      `📄 PDF Generation: ${API_CONFIG.BASE_URL}${API_CONFIG.BASE_PATH}/generate-pdf`,
-    );
-    console.log(`📋 API Documentation: ${API_CONFIG.BASE_URL}/api`);
-    console.log(`🔗 Legacy redirect: /api/* → ${API_CONFIG.BASE_PATH}/*`);
-  }
 });
 
 process.on("SIGTERM", gracefulShutdown);

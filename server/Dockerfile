@@ -15,7 +15,6 @@ FROM node:20-slim AS deps
 
 WORKDIR /app
 
-# Install Chromium and dependencies for Puppeteer
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -40,14 +39,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Configure Puppeteer to use system Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Copy package files
 COPY package.json package-lock.json* ./
 
-# Install production dependencies only
 RUN npm ci --only=production --frozen-lockfile
 
 # -----------------------------------------------------------------------------
@@ -60,7 +56,6 @@ LABEL org.opencontainers.image.description="Node.js backend with Puppeteer for P
 
 WORKDIR /app
 
-# Install Chromium runtime dependencies
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -85,29 +80,24 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Puppeteer environment
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV NODE_ENV=production
 
-# Create non-root user
 RUN groupadd -r appgroup && \
     useradd -r -g appgroup -d /home/appuser -m appuser
 
-# Copy node_modules from deps stage
+
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy application source
+
 COPY --chown=appuser:appgroup . .
 
-# Create temp directory for PDF generation
 RUN mkdir -p /app/temp && chown -R appuser:appgroup /app/temp
 
 USER appuser
 
-EXPOSE 3001
+EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-3001}/api/v1/health || exit 1
 
 CMD ["node", "src/index.js"]
