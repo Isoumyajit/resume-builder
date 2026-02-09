@@ -88,12 +88,6 @@ jobs:
             --region=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }} \
             --set-env-vars="NODE_ENV=production" \
-            --startup-probe-http-get-path=/api/v1/health \
-            --startup-probe-initial-delay-seconds=0 \
-            --startup-probe-timeout-seconds=240 \
-            --startup-probe-period-seconds=10 \
-            --startup-probe-failure-threshold=3 \
-            --format="value(status.url)"
 
           # Get the service URL
           BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} \
