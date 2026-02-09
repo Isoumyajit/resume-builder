@@ -24,11 +24,6 @@ const API_CONFIG = {
     MAX: parseInt(process.env.RATE_LIMIT_MAX) || 100, // limit each IP to 100 requests per windowMs
   },
 
-  LATEX: {
-    TIMEOUT: parseInt(process.env.LATEX_TIMEOUT) || 30000,
-    TEMP_DIR: process.env.TEMP_DIR || "./temp",
-  },
-
   LOG_LEVEL: process.env.LOG_LEVEL || "info",
 
   REQUEST: {

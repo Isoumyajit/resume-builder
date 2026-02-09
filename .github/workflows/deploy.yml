@@ -94,7 +94,7 @@ jobs:
           region: ${{ env.REGION }}
           image: ${{ env.BACKEND_IMAGE }}
           project_id: ${{ env.PROJECT_ID }}
-          flags: --allow-unauthenticated --memory=2Gi --cpu=1
+          flags: --allow-unauthenticated --memory=2Gi --cpu=2 --cpu-boost --timeout=10000 --min-instances=0 --max-instances=3
           env_vars: NODE_ENV=production
 
       - name: Deploy Frontend
