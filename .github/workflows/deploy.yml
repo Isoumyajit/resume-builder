@@ -73,7 +73,6 @@ jobs:
           BACKEND_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/resume-builder/${{ env.BACKEND_SERVICE }}:${{ github.sha }}"
           docker build --tag "${BACKEND_TAG}" -f server/Dockerfile ./server
           docker push "${BACKEND_TAG}"
-          echo "BACKEND_IMAGE=${BACKEND_TAG}" >> $GITHUB_ENV
 
       - name: Build and Push Frontend
         run: |
@@ -84,7 +83,6 @@ jobs:
             --build-arg VITE_NODE_ENV=production \
             -f Dockerfile .
           docker push "${FRONTEND_TAG}"
-          echo "FRONTEND_IMAGE=${FRONTEND_TAG}" >> $GITHUB_ENV
 
       - name: Deploy Backend
         id: deploy-backend
@@ -92,12 +90,8 @@ jobs:
         with:
           service: ${{ env.BACKEND_SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.BACKEND_IMAGE }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
           project_id: ${{ env.PROJECT_ID }}
-          flags: --allow-unauthenticated
-          env_vars: |
-            NODE_ENV=production
-            FRONTEND_URL=*
 
       - name: Deploy Frontend
         id: deploy-frontend
@@ -105,7 +99,7 @@ jobs:
         with:
           service: ${{ env.FRONTEND_SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.FRONTEND_IMAGE }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
           project_id: ${{ env.PROJECT_ID }}
           flags: --port=80 --allow-unauthenticated
 
