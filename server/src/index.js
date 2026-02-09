@@ -7,10 +7,8 @@ const { createApp } = require("./app");
 const { API_CONFIG } = require("./config/api");
 const { loggers } = require("./config/logger");
 
-// Create configured Express application
 const app = createApp();
 
-// Start the server
 const server = app.listen(API_CONFIG.PORT, () => {
   loggers.app.info(
     {
@@ -27,7 +25,6 @@ const server = app.listen(API_CONFIG.PORT, () => {
     `🚀 Resume Builder Server running on port ${API_CONFIG.PORT}`,
   );
 
-  // Console output for development convenience
   if (API_CONFIG.NODE_ENV === "development") {
     console.log(`📡 API Version: ${API_CONFIG.VERSION}`);
     console.log(`🌍 Environment: ${API_CONFIG.NODE_ENV}`);
@@ -42,7 +39,6 @@ const server = app.listen(API_CONFIG.PORT, () => {
   }
 });
 
-// Graceful shutdown handling
 process.on("SIGTERM", gracefulShutdown);
 process.on("SIGINT", gracefulShutdown);
 
@@ -65,7 +61,6 @@ function gracefulShutdown(signal) {
     process.exit(0);
   });
 
-  // Force close after 10 seconds
   setTimeout(() => {
     loggers.app.warn(
       {
