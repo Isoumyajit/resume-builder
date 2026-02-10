@@ -7,7 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 function App() {
   const resumeBuilderState = useResumeBuilder();
   return (
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+    <ThemeProvider>
       <TooltipProvider delayDuration={300}>
         <ResumeBuilderLayout state={resumeBuilderState} />
       </TooltipProvider>

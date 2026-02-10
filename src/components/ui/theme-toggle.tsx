@@ -26,15 +26,7 @@ export function ThemeToggle({ className, size = "md" }: ThemeToggleProps) {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  // Determine actual theme (resolve "system" to actual value)
-  const resolvedTheme =
-    theme === "system"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      : theme;
-
-  const isDark = resolvedTheme === "dark";
+  const isDark = theme === "dark";
 
   return (
     <button

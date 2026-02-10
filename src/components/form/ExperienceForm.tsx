@@ -9,6 +9,7 @@ import {
   Calendar,
   CircleSmall,
   Sparkles,
+  LucideBadgeQuestionMark,
 } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
@@ -23,6 +24,7 @@ import {
 import type { ExperienceFormProps } from "@/interfaces/components";
 import { useAiService } from "@/hooks";
 import { Skeleton } from "../ui/skeleton";
+import CustomTooltip from "../ui/custom-tooltip";
 
 export function ExperienceForm({
   form,
@@ -51,6 +53,12 @@ export function ExperienceForm({
       company: form.watch(`experience.${index}.company`),
       techStack: form.watch(`experience.${index}.techStack`),
     });
+  };
+
+  const getAiServiceDescription = () => {
+    return `This will be generated based on the job title, company and tech stack you have provided. 
+    which may be inaccurate so we suggest you to edit the generated bullets to make them more accurate and 
+    relevant to your experience.`;
   };
 
   return (
@@ -205,6 +213,13 @@ export function ExperienceForm({
                         </div>
                       )}
                     </Button>
+
+                    <CustomTooltip content={getAiServiceDescription()}>
+                      <Button variant="ghost" size="sm">
+                        <LucideBadgeQuestionMark className="h-4 w-4" />
+                      </Button>
+                    </CustomTooltip>
+
                     <Button
                       type="button"
                       variant="ghost"
