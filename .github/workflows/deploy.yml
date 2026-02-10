@@ -22,6 +22,8 @@ on:
         required: true
       GCP_WORKLOAD_IDENTITY_PROVIDER:
         required: true
+      GEMINI_API_KEY:
+        required: false
 
   workflow_dispatch:
     inputs:
@@ -40,6 +42,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: ${{ secrets.GCP_REGION }}
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
   FRONTEND_SERVICE: resume-builder-frontend
   BACKEND_SERVICE: resume-builder-backend
 
@@ -87,7 +90,7 @@ jobs:
             --image=${{ env.BACKEND_IMAGE }} \
             --region=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }} \
-            --set-env-vars="NODE_ENV=production" \
+            --set-env-vars="NODE_ENV=production,GEMINI_API_KEY=${{ env.GEMINI_API_KEY }}" \
 
           # Get the service URL
           BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} \
