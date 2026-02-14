@@ -52,7 +52,6 @@ class Achievement {
       bullet: this.bullet,
     };
   }
-
   /**
    * Escape HTML special characters for safe rendering
    * @param {string} text

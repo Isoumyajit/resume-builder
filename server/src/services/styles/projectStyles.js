@@ -1,4 +1,10 @@
 const projectStyles = `
+  .project-item { 
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 8px;
+  }
   .project-title {
     margin-top: 2px;
     display: flex;
@@ -13,6 +19,8 @@ const projectStyles = `
     align-items: center;
     gap: 4px;
     font-weight: bold;
+    width: fit-content;
+    border-bottom: 1px dotted #696969;
   }
 
   .project-tech-stack-name {
@@ -28,11 +36,11 @@ const projectStyles = `
   }
   
   .project-description {
-    margin-top: 2px;
     display: flex;
     align-items: center;
     gap: 8px;
     word-break: break-word;
+    margin-left: 24px;
   }
 `;
 

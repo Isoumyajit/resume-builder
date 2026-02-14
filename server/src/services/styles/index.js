@@ -2,6 +2,7 @@ const { baseStyles } = require("./baseStyles");
 const { headerStyles } = require("./headerStyles");
 const { sectionStyles } = require("./sectionStyles");
 const { itemStyles } = require("./itemStyles");
+const { experienceStyles } = require("./experienceStyles");
 const { projectStyles } = require("./projectStyles");
 const { skillsStyles } = require("./skillsStyles");
 const { profileLinksStyles } = require("./profileLinksStyles");
@@ -16,6 +17,7 @@ function getAllStyles() {
     headerStyles,
     sectionStyles,
     itemStyles,
+    experienceStyles,
     projectStyles,
     profileLinksStyles,
     skillsStyles,
@@ -32,6 +34,7 @@ function getStylesBySections(sections = []) {
     header: headerStyles,
     section: sectionStyles,
     item: itemStyles,
+    experience: experienceStyles,
     project: projectStyles,
     profileLinks: profileLinksStyles,
     skills: skillsStyles,
@@ -49,6 +52,7 @@ module.exports = {
   headerStyles,
   sectionStyles,
   itemStyles,
+  experienceStyles,
   projectStyles,
   profileLinksStyles,
   skillsStyles,

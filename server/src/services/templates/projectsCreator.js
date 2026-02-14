@@ -11,7 +11,7 @@ function generateProjectsHtml(projects = []) {
   const projectItems = projects
     .map(
       (proj) => `
-    <div class="item">
+    <div class="project-item">
       <div class="project-title">
         ${escapeHtml(proj.name || "")}
         ${proj.url ? `<a href="${proj.url}">${ICON_URLS.externalLink}</a>` : ""}
