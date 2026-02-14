@@ -50,6 +50,8 @@ const config = {
     "!src/**/__tests__/**",
     "!src/**/__mocks__/**",
     "!src/setupTests.ts",
+    // Exclude files using import.meta (Vite-only, incompatible with ts-jest)
+    "!src/config/**",
   ],
 
   coverageThreshold: {
