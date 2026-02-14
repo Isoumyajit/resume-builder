@@ -4,7 +4,7 @@ const skillsStyles = `
   }
   
   .skills-list p {
-    margin-bottom: 4px;
+    margin-bottom: 1px;
   }
   
   .skills-list strong {

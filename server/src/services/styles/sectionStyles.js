@@ -1,6 +1,6 @@
 const sectionStyles = `
   .section {
-    margin-bottom: 12px;
+    margin-bottom: 2px;
     break-inside: avoid;
     break-after: auto;
     
@@ -14,7 +14,6 @@ const sectionStyles = `
     font-weight: semibold;
     color: rgb(0, 0, 0);
     border-bottom: 1px solid rgb(49, 49, 49);
-    padding-bottom: 4px;
   }
 `;
 

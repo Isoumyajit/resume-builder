@@ -16,33 +16,33 @@ function generateExperienceHtml(experience = []) {
   const experienceItems = experience
     .map(
       (exp) => `
-    <div class="item">
-      <div class="item-header-content">
-      <div class="item-company">
-        <span class="item-title">${escapeHtml(exp.company || "")}</span>
+    <div class="experience-item">
+      <div class="experience-header-content">
+      <div class="experience-company">
+        <span class="experience-title">${escapeHtml(exp.company || "")}</span>
       </div>
-      <div class="item-subtitle">
+      <div class="experience-subtitle">
         ${escapeHtml(exp.location || "")} ${ICON_URLS.verticalLine} ${escapeHtml(exp.startDate || "")} ${ICON_URLS.line} ${escapeHtml(exp.endDate || "")}
       </div>
       </div>
-      <div class="item-role">
-        <span class="item-title">${escapeHtml(exp.title || "")}</span>
+      <div class="experience-role">
+        <span class="experience-title">${escapeHtml(exp.title || "")}</span>
       </div>
       
-      ${exp.techStack ? `<div class="tech-stack">Tech Stack: <span>${escapeHtml(exp.techStack)}</span></div>` : ""}
+      ${exp.techStack ? `<div class="experience-tech-stack">Tech Stack: <span>${escapeHtml(exp.techStack)}</span></div>` : ""}
       ${
         exp.bullets && exp.bullets.length > 0
           ? `
-        <ul class="bullets">
+        <ul class="experience-bullets">
           ${exp.bullets
             .filter((b) => b && b.trim())
             .map(
               (bullet) => `
-              <div class="bullet-item-container">
-              <span class="bullet-item-index">
+              <div class="experience-bullet-item-container">
+              <span class="experience-bullet-item-index">
                 ${ICON_URLS.bullet}
               </span>
-              <li class="bullet-item">${escapeHtml(bullet)}</li></div>`,
+              <li class="experience-bullet-item">${escapeHtml(bullet)}</li></div>`,
             )
             .join("")}
         </ul>

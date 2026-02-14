@@ -1,6 +1,6 @@
 const itemStyles = `
   .item {
-    margin-bottom: 12px;
+    margin-bottom: 6px;
   }
 
   .item-header-content {

@@ -27,11 +27,13 @@ Tech: ${techStack || "N/A"}
 Requirements:
 - Start with strong action verb
 - Include quantifiable impact if possible
-- Max 150 characters
 - No bullet symbol, just the text
 - Professional, concise language
 - 4 bullet points
-- Each bullet point should be 250 characters max
+- Each bullet point should be 250 characters minimum
+- Each bullet point should be 270 characters maximum strictly
+- If the bullet point is more than 270 characters then first shorten it.
+- The points should be strictly 270 characters maximum at any cost.
 - Each bullet point should be a one or two sentence bullet point
 - Each bullet point should be a professional, concise language
 - After one bullet point, add a new line
@@ -62,7 +64,8 @@ url: ${url || "N/A"}
 Requirements:
 - 1-2 concise sentences
 - Highlight key features and technical achievements
-- Max 100 characters
+- Min 200 characters
+- Max 300 characters
 - Professional tone
 - No bullet points
 - If url is provided, add the viewer can check it out using the url given above don't add it in the description

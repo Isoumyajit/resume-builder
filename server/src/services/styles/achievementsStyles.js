@@ -4,8 +4,11 @@ const achievementsStyles = `
     padding: 0;
     margin: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 6px;
+    align-items: center;
+    text-align: center;
   }
 
   .achievement-item {

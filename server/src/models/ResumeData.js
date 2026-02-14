@@ -10,6 +10,7 @@ const Project = require("./Project");
 const ProfileLinks = require("./ProfileLinks");
 const Skills = require("./Skills");
 const Achievement = require("./Achievement");
+const { randomUUID } = require("node:crypto");
 
 class ResumeData {
   constructor(data = {}) {
@@ -19,13 +20,27 @@ class ResumeData {
     this.projects = (data.projects || []).map((proj) => new Project(proj));
     this.profileLinks = new ProfileLinks(data.profileLinks || {});
     this.skills = new Skills(data.skills || {});
-    this.achievements = (data.achievements || []).map(
-      (ach) => new Achievement(ach),
-    );
+    this.achievements = data.achievements || [];
+    this.transformedAchievements();
 
-    // Metadata
     this.createdAt = data.createdAt || new Date();
     this.updatedAt = data.updatedAt || new Date();
+  }
+
+  transformedAchievements() {
+    const transformedAchievements = [];
+    this.achievements.forEach((ach) => {
+      if (ach.bullet?.includes(",")) {
+        transformedAchievements.push(
+          ...ach.bullet.split(",").map((b) => {
+            return new Achievement({ id: randomUUID(), bullet: b.trim() });
+          }),
+        );
+      } else {
+        transformedAchievements.push(new Achievement(ach));
+      }
+    });
+    this.achievements = transformedAchievements;
   }
 
   /**

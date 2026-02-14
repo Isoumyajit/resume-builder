@@ -14,7 +14,7 @@ function generateAchievementsHtml(achievements = []) {
       (achievement) => `
       <li class="achievement-item">
         ${ICON_URLS.bullet}
-        <span>${escapeHtml(achievement.bullet)}</span>
+        ${escapeHtml(achievement.bullet)}
       </li>
     `,
     )
