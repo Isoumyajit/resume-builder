@@ -61,8 +61,12 @@ export function ResumeFormPanel({
       <SkillsForm form={form} />
 
       {/* Mobile: Generate button (visible on small screens) */}
-      <div className="rb-app__mobile-actions md:hidden">
+      <div
+        data-testid="mobile-actions"
+        className="rb-app__mobile-actions md:hidden"
+      >
         <button
+          data-testid="generate-pdf-button"
           type="button"
           onClick={onGenerate}
           disabled={isGenerating}

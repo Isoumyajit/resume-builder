@@ -31,6 +31,7 @@ export function ThemeToggle({ className, size = "md" }: ThemeToggleProps) {
   return (
     <button
       onClick={toggleTheme}
+      data-testid="theme-toggle"
       className={cn(
         "relative inline-flex items-center justify-center rounded-md",
         "transition-colors duration-200",
@@ -43,6 +44,7 @@ export function ThemeToggle({ className, size = "md" }: ThemeToggleProps) {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       <Sun
+        data-testid="theme-toggle-sun"
         className={cn(
           iconSizeClasses[size],
           "absolute transition-all duration-500 ease-in-out",
@@ -53,6 +55,7 @@ export function ThemeToggle({ className, size = "md" }: ThemeToggleProps) {
       />
 
       <Moon
+        data-testid="theme-toggle-moon"
         className={cn(
           iconSizeClasses[size],
           "absolute transition-all duration-500 ease-in-out",
