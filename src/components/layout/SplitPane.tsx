@@ -20,7 +20,10 @@ export function SplitPane({
         minSize={minLeftSize}
         className="rb-split-pane__panel rb-split-pane__panel--left h-full"
       >
-        <div className="rb-split-pane__content rb-split-pane__content--left h-full overflow-auto bg-gray-50 dark:bg-gray-900 p-6">
+        <div
+          data-testid="split-pane-left"
+          className="rb-split-pane__content rb-split-pane__content--left h-full overflow-auto bg-gray-50 dark:bg-gray-900 p-6"
+        >
           {leftPanel}
         </div>
       </Panel>
@@ -35,7 +38,10 @@ export function SplitPane({
         minSize={minRightSize}
         className="rb-split-pane__panel rb-split-pane__panel--right h-full"
       >
-        <div className="rb-split-pane__content rb-split-pane__content--right h-full overflow-auto bg-gray-100 dark:bg-gray-800 p-6">
+        <div
+          data-testid="split-pane-right"
+          className="rb-split-pane__content rb-split-pane__content--right h-full overflow-auto bg-gray-100 dark:bg-gray-800 p-6"
+        >
           {rightPanel}
         </div>
       </Panel>

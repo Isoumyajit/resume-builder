@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "types": ["jest", "@testing-library/jest-dom"],
+    "skipLibCheck": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    /* Use Node module resolution for ts-jest compatibility */
+    "moduleResolution": "node",
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Note: verbatimModuleSyntax is intentionally omitted (incompatible with ts-jest) */
+    /* Note: allowImportingTsExtensions is omitted (requires verbatimModuleSyntax or noEmit with bundler) */
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+
+    /* Allow default imports from modules without default export */
+    "esModuleInterop": true
+  },
+  "include": ["src", "src/setupTests.ts"]
+}

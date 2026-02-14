@@ -3,6 +3,9 @@ import { Button } from "../ui/button";
 import type { HeaderProps } from "@/interfaces/components";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
+export const SUBTITLE = "Create professional resumes with LaTeX quality";
+export const TITLE = "Resume Builder";
+export const DOWNLOAD_BUTTON_TEXT = "Download PDF";
 export function Header({ onDownload, canDownload, isGenerating }: HeaderProps) {
   return (
     <header className="rb-header border-b border-gray-300 bg-gray-200 px-6 py-4 dark:bg-gray-900 dark:border-gray-700">
@@ -13,10 +16,10 @@ export function Header({ onDownload, canDownload, isGenerating }: HeaderProps) {
           </div>
           <div className="rb-header__info">
             <h1 className="rb-header__title text-xl font-bold text-gray-900 dark:text-gray-100">
-              Resume Builder
+              {TITLE}
             </h1>
             <p className="rb-header__subtitle text-sm text-gray-500 dark:text-gray-400">
-              Create professional resumes with LaTeX quality
+              {SUBTITLE}
             </p>
           </div>
         </div>
@@ -29,7 +32,7 @@ export function Header({ onDownload, canDownload, isGenerating }: HeaderProps) {
             className="rb-header__download-button gap-2 cursor-pointer"
           >
             <Download className="h-4 w-4" />
-            Download PDF
+            {DOWNLOAD_BUTTON_TEXT}
           </Button>
         </div>
       </div>
