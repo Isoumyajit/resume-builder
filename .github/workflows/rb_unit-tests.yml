@@ -101,13 +101,13 @@ jobs:
           echo "| Backend Tests | ${{ needs.backend-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [[ "${{ needs.frontend-tests.result }}" == "failure" ]]; then
-            echo "❌ Frontend tests failed"
+          if [[ "${{ needs.frontend-tests.result }}" != "success" ]]; then
+            echo "❌ Frontend tests ${{ needs.frontend-tests.result }}"
             exit 1
           fi
 
-          if [[ "${{ needs.backend-tests.result }}" == "failure" ]]; then
-            echo "❌ Backend tests failed"
+          if [[ "${{ needs.backend-tests.result }}" != "success" ]]; then
+            echo "❌ Backend tests ${{ needs.backend-tests.result }}"
             exit 1
           fi
 
