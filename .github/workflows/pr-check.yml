@@ -32,7 +32,7 @@ on:
       - ".gitignore"
 
 concurrency:
-  group: pr-${{ github.pull_request.number }}
+  group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
