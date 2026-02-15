@@ -12,7 +12,7 @@
 # Skipped entirely for changes to: docs/, *.md, LICENSE, .gitignore
 #
 # Requirements:
-#   1. Branch name must follow: type/RB-description (e.g. feature/RB-add-export)
+#   1. Branch name must follow: type/description (e.g. feature/add-export)
 #   2. CodeQL security analysis must pass
 #   3. All tests must pass (Frontend + Backend)
 #   4. Docker images must build successfully
