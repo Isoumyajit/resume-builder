@@ -1,39 +1,23 @@
 # =============================================================================
 # GitHub Actions - Unit Tests
 # =============================================================================
-# Runs unit tests for frontend and backend on every PR targeting main.
-# All tests must pass before merging is allowed.
+# Runs unit tests for frontend and backend with coverage.
+# Called by pr-check.yml — does NOT trigger independently on PRs.
+# Prerequisites (branch name + CodeQL) are handled by the caller.
 # =============================================================================
 
 name: Unit Tests
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    branches: [main]
-  push:
-    branches: [main]
-
-concurrency:
-  group: tests-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_call:
 
 jobs:
   # ===========================================================================
-  # Prerequisites - Branch Name + CodeQL
-  # ===========================================================================
-  prerequisite:
-    name: Prerequisites
-    uses: ./.github/workflows/_prerequisites-pr.yml
-    secrets: inherit
-
-  # ===========================================================================
-  # Frontend Unit Tests (runs after prerequisites pass)
+  # Frontend Unit Tests
   # ===========================================================================
   frontend-tests:
     name: Frontend Tests
     runs-on: ubuntu-latest
-    needs: prerequisite
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,12 +46,11 @@ jobs:
           retention-days: 7
 
   # ===========================================================================
-  # Backend Unit Tests (runs after prerequisites pass)
+  # Backend Unit Tests
   # ===========================================================================
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
-    needs: prerequisite
     defaults:
       run:
         working-directory: server
@@ -105,7 +88,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
-    needs: [prerequisite, frontend-tests, backend-tests]
+    needs: [frontend-tests, backend-tests]
     if: always()
     steps:
       - name: Check All Results
@@ -114,15 +97,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Prerequisites (Branch + CodeQL) | ${{ needs.prerequisite.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend Tests | ${{ needs.frontend-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Backend Tests | ${{ needs.backend-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [[ "${{ needs.prerequisite.result }}" == "failure" ]]; then
-            echo "❌ Prerequisites failed (branch name or CodeQL)"
-            exit 1
-          fi
 
           if [[ "${{ needs.frontend-tests.result }}" == "failure" ]]; then
             echo "❌ Frontend tests failed"
@@ -134,4 +111,4 @@ jobs:
             exit 1
           fi
 
-          echo "✅ All checks passed!"
+          echo "✅ All tests passed!"

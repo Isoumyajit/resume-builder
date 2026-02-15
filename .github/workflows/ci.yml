@@ -2,12 +2,11 @@
 # GitHub Actions - Main CI Pipeline
 # =============================================================================
 # Orchestrates the complete CI/CD pipeline for pushes to main:
-#   1. CodeQL Security Analysis
-#   2. Unit Tests (Frontend & Backend)
-#   3. Deploy to GCP Cloud Run (only if all checks pass)
+#   1. Check if code changed (skip pipeline for docs-only commits)
+#   2. CodeQL + Unit Tests (in parallel)
+#   3. Deploy to GCP Cloud Run (only if both pass)
 #
-# This ensures workflows run sequentially and deploy only happens after
-# all quality gates pass.
+# Skipped entirely for changes to: docs/, *.md, LICENSE, .gitignore
 # =============================================================================
 
 name: CI Pipeline
@@ -15,6 +14,11 @@ name: CI Pipeline
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "LICENSE"
+      - ".gitignore"
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -22,10 +26,10 @@ concurrency:
 
 jobs:
   # ===========================================================================
-  # Step 1: CodeQL Security Analysis
+  # Step 1: CodeQL + Unit Tests (in parallel — no dependency between them)
   # ===========================================================================
   codeql:
-    name: "Step 1: CodeQL"
+    name: CodeQL
     uses: ./.github/workflows/_codeQL.yml
     permissions:
       security-events: write
@@ -33,22 +37,18 @@ jobs:
       actions: read
       contents: read
 
-  # ===========================================================================
-  # Step 2: Unit Tests (runs after CodeQL passes)
-  # ===========================================================================
   unit-tests:
-    name: "Step 2: Unit Tests"
-    needs: codeql
+    name: Unit Tests
     uses: ./.github/workflows/rb_unit-tests.yml
     permissions:
       contents: read
 
   # ===========================================================================
-  # Step 3: Deploy (runs after Unit Tests pass)
+  # Step 2: Deploy (runs only after BOTH CodeQL and tests pass)
   # ===========================================================================
   deploy:
-    name: "Step 3: Deploy"
-    needs: unit-tests
+    name: Deploy
+    needs: [codeql, unit-tests]
     uses: ./.github/workflows/deploy.yml
     permissions:
       contents: read
@@ -76,9 +76,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| 1. CodeQL | ${{ needs.codeql.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 2. Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅ Passed' || needs.unit-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 3. Deploy | ${{ needs.deploy.result == 'success' && '✅ Passed' || needs.deploy.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| CodeQL | ${{ needs.codeql.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅ Passed' || needs.unit-tests.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deploy | ${{ needs.deploy.result == 'success' && '✅ Passed' || needs.deploy.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Check Pipeline Status
         run: |
