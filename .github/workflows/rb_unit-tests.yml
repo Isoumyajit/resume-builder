@@ -1,22 +1,17 @@
 # =============================================================================
-# GitHub Actions - Unit Tests (Reusable Workflow)
+# GitHub Actions - Unit Tests
 # =============================================================================
-# Runs unit tests for frontend and backend. Can be called from other workflows.
-# All tests must pass before deployment is allowed.
+# Runs unit tests for frontend and backend on every PR targeting main.
+# All tests must pass before merging is allowed.
 # =============================================================================
 
 name: Unit Tests
 
-permissions:
-  contents: read
-
 on:
-  # Allow this workflow to be called by other workflows
-  workflow_call:
-
-  # Also allow direct triggers for PRs
   pull_request:
     types: [opened, synchronize, reopened]
+    branches: [main]
+  push:
     branches: [main]
 
 concurrency:

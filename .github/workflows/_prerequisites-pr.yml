@@ -27,9 +27,6 @@ on:
         description: "Whether branch name follows convention"
         value: ${{ jobs.validate-branch.outputs.valid }}
 
-permissions:
-  contents: read
-
 jobs:
   # ===========================================================================
   # Validate Branch Name

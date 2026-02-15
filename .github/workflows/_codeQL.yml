@@ -1,16 +1,19 @@
-# =============================================================================
-# GitHub Actions - CodeQL Security Analysis (Reusable Workflow)
-# =============================================================================
-# Performs CodeQL security scanning. Can be called from other workflows.
-# =============================================================================
-
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+# ******** NOTE ********
+# We have attempted to detect the languages in your repository. Please check
+# the `language` matrix defined below to confirm you have the correct set of
+# supported CodeQL languages.
+#
 name: "CodeQL Advanced"
 
 on:
-  # Allow this workflow to be called by other workflows
-  workflow_call:
-
-  # Also allow direct triggers for PRs and scheduled scans
+  push:
+    branches: ["main"]
   pull_request:
     types: [opened, synchronize, reopened]
     branches: ["main"]
