@@ -155,11 +155,11 @@ jobs:
         id: backend-health
         run: |
           BACKEND_URL="${{ needs.deploy.outputs.backend_url }}"
-          echo "Checking backend at: ${BACKEND_URL}/health"
+          echo "Checking backend at: ${BACKEND_URL}/api/v1/health"
 
           HTTP_STATUS=$(curl -s -o /tmp/backend-response.json -w "%{http_code}" \
             --max-time 30 --retry 3 --retry-delay 5 \
-            "${BACKEND_URL}/health")
+            "${BACKEND_URL}/api/v1/health")
 
           echo "Backend response: HTTP ${HTTP_STATUS}"
           cat /tmp/backend-response.json
