@@ -1,13 +1,22 @@
 # =============================================================================
 # GitHub Actions - Pull Request Checks
 # =============================================================================
-# Runs all validation checks on pull requests targeting main.
-# All checks must pass before merging is allowed.
+# Single orchestrator for all PR validation on pull requests targeting main.
+#
+# Pipeline:
+#   1. Prerequisites (branch name + CodeQL)  — runs once
+#   2. Code quality + Unit tests             — run after prerequisites pass
+#   3. Docker build                          — runs after both test suites pass
+#   4. Security audit                        — runs alongside tests (advisory)
+#
+# Skipped entirely for changes to: docs/, *.md, LICENSE, .gitignore
 #
 # Requirements:
 #   1. Branch name must follow: RB-[feature|fix|improvement]-[description]
-#   2. All tests must pass (Frontend, Backend, Docker, Security)
-#   3. PR must be approved by @Isoumyajit (configured in Branch Protection)
+#   2. CodeQL security analysis must pass
+#   3. All tests must pass (Frontend + Backend)
+#   4. Docker images must build successfully
+#   5. PR must be approved by @Isoumyajit (configured in Branch Protection)
 # =============================================================================
 
 name: PR Checks
@@ -16,6 +25,11 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - "LICENSE"
+      - ".gitignore"
 
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
@@ -23,18 +37,23 @@ concurrency:
 
 jobs:
   # ===========================================================================
-  # Prerequisites - Validate Branch Name
+  # Stage 1: Prerequisites — Branch Name + CodeQL (single run)
   # ===========================================================================
   prerequisite:
     name: Prerequisites
     uses: ./.github/workflows/_prerequisites-pr.yml
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
     secrets: inherit
 
   # ===========================================================================
-  # Frontend Checks
+  # Stage 2a: Frontend Code Quality (after prerequisites)
   # ===========================================================================
   frontend:
-    name: Frontend
+    name: Frontend Quality
     runs-on: ubuntu-latest
     needs: prerequisite
     steps:
@@ -54,7 +73,7 @@ jobs:
         run: npm run lint
 
       - name: Type Check
-        run: npx tsc --noEmit
+        run: npx tsc --build
 
       - name: Build
         run: npm run build
@@ -63,15 +82,21 @@ jobs:
           VITE_API_VERSION: v1
 
   # ===========================================================================
-  # Backend Checks
+  # Stage 2b: Unit Tests (after prerequisites)
   # ===========================================================================
-  backend:
-    name: Backend
+  tests:
+    name: Unit Tests
+    needs: prerequisite
+    uses: ./.github/workflows/rb_unit-tests.yml
+    secrets: inherit
+
+  # ===========================================================================
+  # Stage 2c: Security Audit (after prerequisites, advisory only)
+  # ===========================================================================
+  security:
+    name: Security
     runs-on: ubuntu-latest
     needs: prerequisite
-    defaults:
-      run:
-        working-directory: server
     steps:
       - uses: actions/checkout@v4
 
@@ -79,19 +104,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-          cache-dependency-path: server/package-lock.json
 
-      - name: Install
-        run: npm ci
+      - name: Audit Frontend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Audit Backend
+        working-directory: server
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
   # ===========================================================================
-  # Docker Build Check
+  # Stage 3: Docker Build (only after tests + frontend quality pass)
   # ===========================================================================
   docker:
     name: Docker Build
     runs-on: ubuntu-latest
-    needs: prerequisite
+    needs: [frontend, tests]
     steps:
       - uses: actions/checkout@v4
 
@@ -120,38 +149,12 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ===========================================================================
-  # Security Audit
-  # ===========================================================================
-  security:
-    name: Security
-    runs-on: ubuntu-latest
-    needs: prerequisite
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Audit Frontend
-        run: npm audit --audit-level=high
-        continue-on-error: true
-
-      - name: Audit Backend
-        working-directory: server
-        run: npm audit --audit-level=high
-        continue-on-error: true
-
-  # ===========================================================================
   # Final Status Check
   # ===========================================================================
   pr-status:
     name: PR Status
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
-    needs: [prerequisite, frontend, backend, docker, security]
+    needs: [prerequisite, frontend, tests, docker, security]
     if: always()
     steps:
       - name: Check All Jobs
@@ -160,35 +163,35 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Prerequisites | ${{ needs.prerequisite.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Frontend | ${{ needs.frontend.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Backend | ${{ needs.backend.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docker | ${{ needs.docker.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Security | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Prerequisites (Branch + CodeQL) | ${{ needs.prerequisite.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Quality | ${{ needs.frontend.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Build | ${{ needs.docker.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Audit | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
 
           if [[ "${{ needs.prerequisite.result }}" == "failure" ]]; then
             echo ""
-            echo "❌ Prerequisites failed - check branch naming convention"
+            echo "❌ Prerequisites failed — check branch naming convention and CodeQL"
             exit 1
           fi
 
-          # Consolidated failure checks for Frontend, Backend, and Docker
-          declare -A CHECK_RESULTS=(
-            ["Frontend"]="${{ needs.frontend.result }}"
-            ["Backend"]="${{ needs.backend.result }}"
-            ["Docker"]="${{ needs.docker.result }}"
-          )
+          if [[ "${{ needs.frontend.result }}" == "failure" ]]; then
+            echo ""
+            echo "❌ Frontend quality checks failed"
+            exit 1
+          fi
 
-          for CHECK_NAME in "${!CHECK_RESULTS[@]}"; do
-            if [[ "${CHECK_RESULTS[$CHECK_NAME]}" == "failure" ]]; then
-              echo ""
-              if [[ "$CHECK_NAME" == "Docker" ]]; then
-                echo "❌ Docker build failed"
-              else
-                echo "❌ $CHECK_NAME checks failed"
-              fi
-              exit 1
-            fi
-          done
+          if [[ "${{ needs.tests.result }}" == "failure" ]]; then
+            echo ""
+            echo "❌ Unit tests failed"
+            exit 1
+          fi
+
+          if [[ "${{ needs.docker.result }}" == "failure" ]]; then
+            echo ""
+            echo "❌ Docker build failed"
+            exit 1
+          fi
+
           echo ""
           echo "✅ All checks passed!"
