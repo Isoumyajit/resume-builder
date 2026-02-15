@@ -42,6 +42,11 @@ jobs:
   prerequisite:
     name: Prerequisites
     uses: ./.github/workflows/_prerequisites-pr.yml
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
     secrets: inherit
 
   # ===========================================================================
