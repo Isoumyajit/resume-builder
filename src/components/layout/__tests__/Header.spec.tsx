@@ -3,6 +3,13 @@ import userEvent from "@testing-library/user-event";
 import { DOWNLOAD_BUTTON_TEXT, Header, SUBTITLE, TITLE } from "../Header";
 import type { HeaderProps } from "@/interfaces/components/layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { signOut as firebaseSignOut } from "firebase/auth";
+
+jest.mock("firebase/auth");
+jest.mock("@/config/firebase");
+
+const mockSignOut = firebaseSignOut as jest.Mock;
 
 function renderHeader(props = {}) {
   const defaultProps = {
@@ -14,9 +21,11 @@ function renderHeader(props = {}) {
   const mergedProps = { ...defaultProps, ...props };
 
   return render(
-    <ThemeProvider defaultTheme="light">
-      <Header {...mergedProps} />
-    </ThemeProvider>,
+    <AuthProvider>
+      <ThemeProvider defaultTheme="light">
+        <Header {...mergedProps} />
+      </ThemeProvider>
+    </AuthProvider>,
   );
 }
 
@@ -76,5 +85,39 @@ describe("Theme Toggle component should be functioning correctly", () => {
     expect(themeToggleSun).toBeInTheDocument();
     await user.click(themeToggle);
     expect(themeToggleMoon).toBeInTheDocument();
+  });
+});
+
+describe("User avatar and sign-out", () => {
+  beforeEach(() => {
+    mockSignOut.mockClear();
+  });
+
+  it("should render the user avatar button", () => {
+    renderHeader();
+    expect(screen.getByLabelText("User menu")).toBeInTheDocument();
+  });
+
+  it("should show initials fallback when no photo URL", () => {
+    renderHeader();
+    expect(screen.getByText("TU")).toBeInTheDocument();
+  });
+
+  it("should show user info and sign-out button when avatar is clicked", async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    await user.click(screen.getByLabelText("User menu"));
+    expect(screen.getByText("Test User")).toBeInTheDocument();
+    expect(screen.getByText("test@example.com")).toBeInTheDocument();
+    expect(screen.getByText("Sign out")).toBeInTheDocument();
+  });
+
+  it("should call signOut when sign-out button is clicked", async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    await user.click(screen.getByLabelText("User menu"));
+    await user.click(screen.getByText("Sign out"));
+    // AuthProvider delegates to firebase/auth signOut with the auth instance
+    expect(mockSignOut).toHaveBeenCalledWith({});
   });
 });

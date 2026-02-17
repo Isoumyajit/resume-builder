@@ -4,6 +4,19 @@
 import "@testing-library/jest-dom";
 
 // ---------------------------------------------------------------------------
+// Polyfill: TextEncoder / TextDecoder
+// ---------------------------------------------------------------------------
+// react-router-dom v7 uses TextEncoder internally. jsdom does not provide it.
+import { TextEncoder, TextDecoder } from "util";
+
+if (typeof globalThis.TextEncoder === "undefined") {
+  (globalThis as any).TextEncoder = TextEncoder;
+}
+if (typeof globalThis.TextDecoder === "undefined") {
+  (globalThis as any).TextDecoder = TextDecoder;
+}
+
+// ---------------------------------------------------------------------------
 // Mock: localStorage
 // ---------------------------------------------------------------------------
 // ThemeContext reads/writes localStorage. Provide a working in-memory mock.
