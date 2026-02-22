@@ -3,10 +3,22 @@ import userEvent from "@testing-library/user-event";
 import { ResumeFormPanel } from "../ResumeFormPanel";
 import type { ResumeFormPanelProps } from "@/interfaces/components/layout";
 
-// Uses manual mock from src/components/form/__mocks__/index.tsx
 jest.mock("@/components/form", () =>
   jest.requireActual("@/components/form/__mocks__"),
 );
+
+jest.mock("../SortableSectionList", () => ({
+  SortableSectionList: () => (
+    <div data-testid="sortable-section-list">
+      <div data-testid="experience-form" />
+      <div data-testid="education-form" />
+      <div data-testid="projects-form" />
+      <div data-testid="achievements-form" />
+      <div data-testid="profile-links-form" />
+      <div data-testid="skills-form" />
+    </div>
+  ),
+}));
 
 function createDefaultProps(
   overrides: Partial<ResumeFormPanelProps> = {},
@@ -26,6 +38,15 @@ function createDefaultProps(
     toggleCurrentlyWorking: jest.fn(),
     onGenerate: jest.fn(),
     isGenerating: false,
+    sectionOrder: [
+      "experience",
+      "education",
+      "projects",
+      "achievements",
+      "profileLinks",
+      "skills",
+    ],
+    onReorderSections: jest.fn(),
     ...overrides,
   };
 }
@@ -39,8 +60,15 @@ describe("ResumeFormPanel rendering", () => {
     renderFormPanel();
   });
 
-  it("should render all form sections", () => {
+  it("should render PersonalInfoForm", () => {
     expect(screen.getByTestId("personal-info-form")).toBeInTheDocument();
+  });
+
+  it("should render the SortableSectionList", () => {
+    expect(screen.getByTestId("sortable-section-list")).toBeInTheDocument();
+  });
+
+  it("should render all form sections via SortableSectionList", () => {
     expect(screen.getByTestId("experience-form")).toBeInTheDocument();
     expect(screen.getByTestId("education-form")).toBeInTheDocument();
     expect(screen.getByTestId("projects-form")).toBeInTheDocument();
