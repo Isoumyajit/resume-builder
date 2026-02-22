@@ -43,6 +43,8 @@ export interface ResumeFormPanelProps {
   ) => void;
   onGenerate: () => void;
   isGenerating: boolean;
+  sectionOrder: string[];
+  onReorderSections: (newOrder: string[]) => void;
 }
 
 // PreviewPanel component props

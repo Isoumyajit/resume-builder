@@ -33,6 +33,7 @@ export function ExperienceForm({
   onAddBullet,
   onRemoveBullet,
   onToggleCurrentlyWorking,
+  dragHandleRef,
 }: ExperienceFormProps) {
   const {
     register,
@@ -64,6 +65,7 @@ export function ExperienceForm({
   return (
     <FormSection
       title="Work Experience"
+      dragHandleRef={dragHandleRef}
       action={
         <Button
           type="button"

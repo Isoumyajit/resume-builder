@@ -120,8 +120,7 @@ export async function getTemplates(): Promise<any[]> {
 
     const data = await response.json();
     return data.templates || [];
-  } catch (error) {
-    console.error("Failed to fetch templates:", error);
+  } catch {
     return [];
   }
 }

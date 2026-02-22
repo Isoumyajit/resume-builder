@@ -19,6 +19,7 @@ export function ProjectsForm({
   form,
   fieldArray,
   onAddProject,
+  dragHandleRef,
 }: ProjectsFormProps) {
   const {
     register,
@@ -32,6 +33,7 @@ export function ProjectsForm({
   return (
     <FormSection
       title="Projects"
+      dragHandleRef={dragHandleRef}
       action={
         <Button
           type="button"

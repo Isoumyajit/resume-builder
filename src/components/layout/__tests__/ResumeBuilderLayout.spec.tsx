@@ -23,6 +23,14 @@ function createMockState(
       educationArray: {} as never,
       projectsArray: {} as never,
       achievementsArray: {} as never,
+      sectionOrder: [
+        "experience",
+        "education",
+        "projects",
+        "profileLinks",
+        "skills",
+        "achievements",
+      ],
       handlers: {
         addExperience: jest.fn(),
         addEducation: jest.fn(),
@@ -31,6 +39,7 @@ function createMockState(
         addBullet: jest.fn(),
         removeBullet: jest.fn(),
         toggleCurrentlyWorking: jest.fn(),
+        reorderSections: jest.fn(),
       },
     },
     pdf: {

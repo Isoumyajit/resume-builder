@@ -25,12 +25,29 @@ import type {
   DateIconFieldProps,
   InputIconFieldProps,
 } from "@/interfaces/components/form";
+import { GripVertical } from "lucide-react";
 
-export function FormSection({ title, children, action }: FormSectionProps) {
+export function FormSection({
+  title,
+  children,
+  action,
+  dragHandleRef,
+}: FormSectionProps) {
   return (
     <FieldSet className="rounded-lg border bg-card text-card-foreground shadow-sm">
-      <div className="flex items-center justify-between p-6 pb-0">
-        <FieldLegend className="text-lg font-semibold">{title}</FieldLegend>
+      <div className="flex items-center p-6 pb-0">
+        {dragHandleRef && (
+          <div
+            ref={dragHandleRef}
+            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors mr-2 -ml-2"
+            aria-label="Drag to reorder"
+          >
+            <GripVertical className="h-5 w-5" />
+          </div>
+        )}
+        <FieldLegend className="text-lg font-semibold flex-1 mb-0">
+          {title}
+        </FieldLegend>
         {action && <div className="flex items-center">{action}</div>}
       </div>
       <Separator />
@@ -122,7 +139,6 @@ export function InputIconField({
   );
 }
 
-// Component for date fields with icons (DatePicker already handles InputGroup internally)
 export function DateIconField({
   label,
   error,

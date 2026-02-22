@@ -44,7 +44,6 @@ async function generateResumePdfPuppeteer(resumeData) {
       printBackground: true,
     });
 
-    console.log("✅ PDF generated successfully with Puppeteer");
     return Buffer.from(pdfBuffer);
   } catch (error) {
     console.error("❌ PDF generation failed:", error);

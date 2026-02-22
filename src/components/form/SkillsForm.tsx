@@ -2,14 +2,14 @@ import { Textarea } from "../ui/textarea";
 import { FormSection, FormField } from "./FormSection";
 import type { SkillsFormProps } from "@/interfaces/components";
 
-export function SkillsForm({ form }: SkillsFormProps) {
+export function SkillsForm({ form, dragHandleRef }: SkillsFormProps) {
   const {
     register,
     formState: { errors },
   } = form;
 
   return (
-    <FormSection title="Technical Skills">
+    <FormSection title="Technical Skills" dragHandleRef={dragHandleRef}>
       <div className="rb-skills-form">
         <FormField
           label="Programming Languages"

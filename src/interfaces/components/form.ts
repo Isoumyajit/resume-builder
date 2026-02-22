@@ -2,7 +2,7 @@
  * Component prop interfaces for Form components
  */
 
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactNode, RefObject } from "react";
 import type { UseFormReturn, UseFieldArrayReturn } from "react-hook-form";
 import type { ResumeFormData } from "@/lib/validation";
 import type { LucideIcon } from "lucide-react";
@@ -13,6 +13,7 @@ export interface FormSectionProps {
   title: string;
   children: ReactNode;
   action?: ReactNode;
+  dragHandleRef?: RefObject<HTMLDivElement | null>;
 }
 
 // FormRow component props
@@ -54,6 +55,7 @@ export interface ExperienceFormProps {
     experienceIndex: number,
     isCurrentlyWorking: boolean,
   ) => void;
+  dragHandleRef?: RefObject<HTMLDivElement | null>;
 }
 
 // EducationForm component props
@@ -61,6 +63,7 @@ export interface EducationFormProps {
   form: UseFormReturn<ResumeFormData>;
   fieldArray: UseFieldArrayReturn<ResumeFormData, "education">;
   onAddEducation: () => void;
+  dragHandleRef?: RefObject<HTMLDivElement | null>;
 }
 
 // ProjectsForm component props
@@ -68,16 +71,19 @@ export interface ProjectsFormProps {
   form: UseFormReturn<ResumeFormData>;
   fieldArray: UseFieldArrayReturn<ResumeFormData, "projects">;
   onAddProject: () => void;
+  dragHandleRef?: RefObject<HTMLDivElement | null>;
 }
 
 // ProfileLinksForm component props
 export interface ProfileLinksFormProps {
   form: UseFormReturn<ResumeFormData>;
+  dragHandleRef?: RefObject<HTMLDivElement | null>;
 }
 
 // SkillsForm component props
 export interface SkillsFormProps {
   form: UseFormReturn<ResumeFormData>;
+  dragHandleRef?: RefObject<HTMLDivElement | null>;
 }
 
 // AchievementsForm component props
@@ -85,6 +91,7 @@ export interface AchievementsFormProps {
   form: UseFormReturn<ResumeFormData>;
   fieldArray: UseFieldArrayReturn<ResumeFormData, "achievements">;
   onAddAchievement: () => void;
+  dragHandleRef?: RefObject<HTMLDivElement | null>;
 }
 
 // Props for InputIconField

@@ -3,14 +3,17 @@ import { Input } from "../ui/input";
 import { FormSection, FormRow, FormField } from "./FormSection";
 import type { ProfileLinksFormProps } from "@/interfaces/components";
 
-export function ProfileLinksForm({ form }: ProfileLinksFormProps) {
+export function ProfileLinksForm({
+  form,
+  dragHandleRef,
+}: ProfileLinksFormProps) {
   const {
     register,
     formState: { errors },
   } = form;
 
   return (
-    <FormSection title="Profile Links">
+    <FormSection title="Profile Links" dragHandleRef={dragHandleRef}>
       <div className="rb-profile-links-form">
         <FormRow columns={3}>
           <FormField
