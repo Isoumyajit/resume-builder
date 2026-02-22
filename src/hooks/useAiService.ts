@@ -50,8 +50,8 @@ export function useAiService({ setValue }: UseAiServiceOptions) {
 
         setIsAiServiceRunning((prev) => ({ ...prev, [index]: false }));
         setIsGeneratingBullets((prev) => prev.filter((i) => i !== index));
-      } catch (error) {
-        console.error("Failed to generate bullets:", error);
+      } catch {
+        // silently handled
       } finally {
         setIsGeneratingBullets((prev) => prev.filter((i) => i !== index));
       }
@@ -74,8 +74,8 @@ export function useAiService({ setValue }: UseAiServiceOptions) {
           { index, projectName, techStack, url },
           updateDescription,
         );
-      } catch (error) {
-        console.error("Failed to generate description:", error);
+      } catch {
+        // silently handled
       } finally {
         setIsGenerating((prev) => prev.filter((i) => i !== index));
       }

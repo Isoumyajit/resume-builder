@@ -8,6 +8,7 @@ export function AchievementsForm({
   form,
   fieldArray,
   onAddAchievement,
+  dragHandleRef,
 }: AchievementsFormProps) {
   const {
     register,
@@ -24,6 +25,7 @@ export function AchievementsForm({
   return (
     <FormSection
       title="Achievements"
+      dragHandleRef={dragHandleRef}
       action={
         <Button
           type="button"

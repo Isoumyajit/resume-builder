@@ -1,59 +1,49 @@
 import { z } from "zod";
+import sections from "./utils/section.order";
 
-// Helper function to parse date strings (handles "Jan 2022", "2022", "Present", etc.)
 function parseDate(dateStr: string): Date | null {
   if (!dateStr.trim()) return null;
 
-  // Handle "Present" - treat as today's date
   if (dateStr.toLowerCase() === "present") {
     return new Date();
   }
 
-  // Handle "Jan 2022" format
   if (dateStr.includes(" ")) {
     const date = new Date(dateStr);
     return isNaN(date.getTime()) ? null : date;
   }
 
-  // Handle "2022" year-only format
   if (/^\d{4}$/.test(dateStr)) {
-    return new Date(parseInt(dateStr), 0, 1); // January 1st of that year
+    return new Date(parseInt(dateStr), 0, 1);
   }
 
-  // Try parsing as-is
   const date = new Date(dateStr);
   return isNaN(date.getTime()) ? null : date;
 }
 
-// Helper function to check if date is in the future
 function isDateInFuture(dateStr: string): boolean {
-  // "Present" is never in the future
   if (dateStr.toLowerCase() === "present") return false;
 
   const date = parseDate(dateStr);
   if (!date) return false;
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Start of today
+  today.setHours(0, 0, 0, 0);
 
   return date > today;
 }
 
-// Helper function to check if endDate is valid for currentlyWorking status
 function isValidEndDateForWorkStatus(
   endDate: string,
-  currentlyWorking: boolean
+  currentlyWorking: boolean,
 ): boolean {
   if (currentlyWorking) {
-    // If currently working, endDate should be "Present"
     return endDate.toLowerCase() === "present";
   } else {
-    // If not currently working, endDate should NOT be "Present"
     return endDate.toLowerCase() !== "present";
   }
 }
 
-// Personal Info Schema
 export const personalInfoSchema = z.object({
   name: z.string().min(1, "Name is required"),
   location: z.string().min(1, "Location is required"),
@@ -67,7 +57,6 @@ export const personalInfoSchema = z.object({
     .optional(),
 });
 
-// Experience Schema
 export const experienceSchema = z
   .object({
     id: z.string(),
@@ -99,7 +88,7 @@ export const experienceSchema = z
     {
       message: "Each bullet point must be less than or equal to 300 characters",
       path: ["bullets"],
-    }
+    },
   )
   .refine((data) => {
     return isValidEndDateForWorkStatus(data.endDate, data.currentlyWorking);
@@ -115,11 +104,10 @@ export const experienceSchema = z
     },
     {
       message: "Start date must be before or equal to end date",
-      path: ["endDate"], // Show error on end date field
-    }
+      path: ["endDate"],
+    },
   );
 
-// Education Schema
 export const educationSchema = z
   .object({
     id: z.string(),
@@ -144,19 +132,16 @@ export const educationSchema = z
       const startDate = parseDate(data.startYear);
       const endDate = parseDate(data.endYear);
 
-      // Skip validation if either date is invalid/unparseable
       if (!startDate || !endDate) return true;
 
-      // Start year should be <= end year
       return startDate <= endDate;
     },
     {
       message: "Start year must be before or equal to end year",
-      path: ["endYear"], // Show error on end year field
-    }
+      path: ["endYear"],
+    },
   );
 
-// Project Schema
 export const projectSchema = z.object({
   id: z.string(),
   name: z.string().min(1, "Project name is required"),
@@ -165,7 +150,6 @@ export const projectSchema = z.object({
   description: z.string().min(1, "Description is required"),
 });
 
-// Profile Links Schema
 export const profileLinksSchema = z.object({
   leetcode: z.string().url("Invalid LeetCode URL").optional().or(z.literal("")),
   github: z.string().url("Invalid GitHub URL").optional().or(z.literal("")),
@@ -176,14 +160,12 @@ export const profileLinksSchema = z.object({
     .or(z.literal("")),
 });
 
-// Skills Schema
 export const skillsSchema = z.object({
   languages: z.string().optional().default(""),
   technologies: z.string().optional().default(""),
   other: z.string().optional().default(""),
 });
 
-// Achievement Schema
 export const achievementSchema = z
   .object({
     id: z.string(),
@@ -196,10 +178,9 @@ export const achievementSchema = z
     },
     {
       path: ["bullet"],
-    }
+    },
   );
 
-// Complete Resume Schema
 export const resumeSchema = z.object({
   personalInfo: personalInfoSchema,
   experience: z.array(experienceSchema),
@@ -208,6 +189,26 @@ export const resumeSchema = z.object({
   profileLinks: profileLinksSchema.optional().default({}),
   skills: skillsSchema,
   achievements: z.array(achievementSchema).optional().default([]),
+  sectionOrder: z
+    .array(
+      z.enum([
+        sections.experience,
+        sections.education,
+        sections.projects,
+        sections.profileLinks,
+        sections.skills,
+        sections.achievements,
+      ]),
+    )
+    .optional()
+    .default([
+      sections.experience,
+      sections.education,
+      sections.projects,
+      sections.profileLinks,
+      sections.skills,
+      sections.achievements,
+    ]),
 });
 
 export type ResumeFormData = z.infer<typeof resumeSchema>;

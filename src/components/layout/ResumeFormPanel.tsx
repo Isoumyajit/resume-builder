@@ -1,12 +1,5 @@
-import {
-  PersonalInfoForm,
-  ExperienceForm,
-  EducationForm,
-  ProjectsForm,
-  ProfileLinksForm,
-  SkillsForm,
-  AchievementsForm,
-} from "@/components/form";
+import { PersonalInfoForm } from "@/components/form";
+import { SortableSectionList } from "./SortableSectionList";
 import type { ResumeFormPanelProps } from "@/interfaces/components";
 
 export function ResumeFormPanel({
@@ -24,41 +17,29 @@ export function ResumeFormPanel({
   toggleCurrentlyWorking,
   onGenerate,
   isGenerating,
+  sectionOrder,
+  onReorderSections,
 }: ResumeFormPanelProps) {
   return (
     <div className="rb-app__form-panel space-y-6 max-w-3xl mx-auto">
       <PersonalInfoForm form={form} />
 
-      <ExperienceForm
+      <SortableSectionList
+        sectionOrder={sectionOrder}
+        onReorder={onReorderSections}
         form={form}
-        fieldArray={experienceArray}
-        onAddExperience={addExperience}
-        onAddBullet={addBullet}
-        onRemoveBullet={removeBullet}
-        onToggleCurrentlyWorking={toggleCurrentlyWorking}
+        experienceArray={experienceArray}
+        educationArray={educationArray}
+        projectsArray={projectsArray}
+        achievementsArray={achievementsArray}
+        addExperience={addExperience}
+        addEducation={addEducation}
+        addProject={addProject}
+        addAchievement={addAchievement}
+        addBullet={addBullet}
+        removeBullet={removeBullet}
+        toggleCurrentlyWorking={toggleCurrentlyWorking}
       />
-
-      <EducationForm
-        form={form}
-        fieldArray={educationArray}
-        onAddEducation={addEducation}
-      />
-
-      <ProjectsForm
-        form={form}
-        fieldArray={projectsArray}
-        onAddProject={addProject}
-      />
-
-      <AchievementsForm
-        form={form}
-        fieldArray={achievementsArray}
-        onAddAchievement={addAchievement}
-      />
-
-      <ProfileLinksForm form={form} />
-
-      <SkillsForm form={form} />
 
       {/* Mobile: Generate button (visible on small screens) */}
       <div

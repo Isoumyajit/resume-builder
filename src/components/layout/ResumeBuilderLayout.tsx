@@ -37,6 +37,8 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
               toggleCurrentlyWorking={form.handlers.toggleCurrentlyWorking}
               onGenerate={actions.generatePdf}
               isGenerating={pdf.isLoading}
+              sectionOrder={form.sectionOrder}
+              onReorderSections={form.handlers.reorderSections}
             />
           }
           rightPanel={

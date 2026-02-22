@@ -15,6 +15,24 @@ const { generateSkillsHtml } = require("./templates/skillsCreator");
 const { generateProfileLinksHtml } = require("./templates/profileLinksCreator");
 const { generateAchievementsHtml } = require("./templates/achievementsCreator");
 
+const sectionRenderers = {
+  experience: (data) => generateExperienceHtml(data.experience),
+  education: (data) => generateEducationHtml(data.education),
+  projects: (data) => generateProjectsHtml(data.projects),
+  profileLinks: (data) => generateProfileLinksHtml(data.profileLinks),
+  skills: (data) => generateSkillsHtml(data.skills),
+  achievements: (data) => generateAchievementsHtml(data.achievements),
+};
+
+const DEFAULT_SECTION_RENDERER = [
+  "experience",
+  "education",
+  "projects",
+  "profileLinks",
+  "skills",
+  "achievements",
+];
+
 /**
  * Generate complete HTML template from resume data.
  */
@@ -28,6 +46,14 @@ function generateHtmlTemplate(data) {
     skills = {},
     achievements = [],
   } = data;
+  const orders = Array.isArray(data.sectionOrder)
+    ? data.sectionOrder
+    : DEFAULT_SECTION_RENDERER;
+
+  const sections = orders
+    .filter((key) => sectionRenderers[key])
+    .map((key) => sectionRenderers[key](data))
+    .join("\n");
 
   return `
 <!DOCTYPE html>
@@ -45,12 +71,7 @@ function generateHtmlTemplate(data) {
 <body>
   <div class="container">
     ${generateHeaderHtml(personalInfo)}
-    ${generateExperienceHtml(experience)}
-    ${generateEducationHtml(education)}
-    ${generateProjectsHtml(projects)}
-    ${generateAchievementsHtml(achievements)}
-    ${generateProfileLinksHtml(profileLinks)}
-    ${generateSkillsHtml(skills)}
+    ${sections}
     ${generateFooterHtml()}
   </div>
 </body>

@@ -15,6 +15,7 @@ export function EducationForm({
   form,
   fieldArray,
   onAddEducation,
+  dragHandleRef,
 }: EducationFormProps) {
   const {
     register,
@@ -25,6 +26,7 @@ export function EducationForm({
   return (
     <FormSection
       title="Education"
+      dragHandleRef={dragHandleRef}
       action={
         <Button
           type="button"

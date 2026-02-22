@@ -22,6 +22,8 @@ export function useResumeBuilder() {
     addBullet,
     removeBullet,
     toggleCurrentlyWorking,
+    sectionOrder,
+    reorderSections,
   } = useResumeForm();
 
   // PDF generation state and handlers
@@ -44,6 +46,7 @@ export function useResumeBuilder() {
       educationArray,
       projectsArray,
       achievementsArray,
+      sectionOrder,
       handlers: {
         addExperience,
         addEducation,
@@ -52,6 +55,7 @@ export function useResumeBuilder() {
         addBullet,
         removeBullet,
         toggleCurrentlyWorking,
+        reorderSections,
       },
     },
     // PDF props

@@ -22,9 +22,9 @@ class ResumeData {
     this.skills = new Skills(data.skills || {});
     this.achievements = data.achievements || [];
     this.transformedAchievements();
-
     this.createdAt = data.createdAt || new Date();
     this.updatedAt = data.updatedAt || new Date();
+    this.sectionOrder = data.sectionOrder;
   }
 
   transformedAchievements() {
@@ -122,6 +122,7 @@ class ResumeData {
         createdAt: this.createdAt,
         updatedAt: this.updatedAt,
       },
+      sectionOrder: this.sectionOrder,
     };
   }
 
