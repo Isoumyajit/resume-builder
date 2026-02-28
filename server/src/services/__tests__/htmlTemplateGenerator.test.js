@@ -195,26 +195,24 @@ describe("generateHtmlTemplate", () => {
       expect(html).toContain("Montserrat");
     });
 
-    it("applies modern-accent template with Inter font import", () => {
+    it("applies modern-accent template with Outfit font import", () => {
       const data = { ...makeFullData(), templateType: "modern-accent" };
       const html = generateHtmlTemplate(data);
       expect(html).toContain('data-template="modern-accent"');
-      expect(html).toContain(
-        "@import url('https://fonts.googleapis.com/css2?family=Inter",
-      );
-      expect(html).toContain('font-family: "Inter", sans-serif');
+      expect(html).toContain("Outfit");
+      expect(html).toContain('font-family: "Outfit", sans-serif');
     });
 
     it("includes modern-accent style overrides", () => {
       const data = { ...makeFullData(), templateType: "modern-accent" };
       const html = generateHtmlTemplate(data);
-      expect(html).toContain("border-left: 3px solid #2563EB");
+      expect(html).toContain("border-left: 2px solid #2563EB");
       expect(html).toContain("text-transform: uppercase");
     });
 
     it("does not include modern-accent overrides for classic", () => {
       const html = generateHtmlTemplate(makeFullData());
-      expect(html).not.toContain("border-left: 3px solid #2563EB");
+      expect(html).not.toContain("border-left: 2px solid #2563EB");
     });
 
     it("escapes HTML in templateType", () => {

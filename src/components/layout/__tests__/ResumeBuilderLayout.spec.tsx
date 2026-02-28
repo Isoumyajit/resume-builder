@@ -7,7 +7,6 @@ jest.mock("../Header");
 jest.mock("../SplitPane");
 jest.mock("../ResumeFormPanel");
 jest.mock("../PreviewPanel");
-jest.mock("../Footer");
 
 function createMockState(
   overrides: {
@@ -64,7 +63,6 @@ describe("ResumeBuilderLayout rendering", () => {
     expect(screen.getByTestId("split-pane")).toBeInTheDocument();
     expect(screen.getByTestId("resume-form-panel")).toBeInTheDocument();
     expect(screen.getByTestId("preview-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("footer")).toBeInTheDocument();
   });
 
   it("should render ResumeFormPanel inside the left split pane", () => {

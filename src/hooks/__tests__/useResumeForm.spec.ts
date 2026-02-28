@@ -7,6 +7,7 @@ jest.mock("nanoid", () => ({
 import { useResumeForm } from "../useResumeForm";
 
 const DEFAULT_ORDER = [
+  "summary",
   "experience",
   "education",
   "projects",
