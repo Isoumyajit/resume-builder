@@ -9,6 +9,7 @@ import sections from "@/lib/utils/section.order";
 const STORAGE_KEY = "rb-section-order";
 
 const DEFAULT_ORDER = [
+  sections.summary,
   sections.experience,
   sections.education,
   sections.projects,
@@ -42,6 +43,9 @@ const defaultValues: ResumeFormData = {
       url: "",
       displayText: "",
     },
+  },
+  summary: {
+    text: "",
   },
   experience: [],
   education: [],

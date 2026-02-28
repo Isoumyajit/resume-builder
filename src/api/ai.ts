@@ -7,6 +7,7 @@ import { API_ENDPOINTS, REQUEST_CONFIG } from "@/config/api";
 import type {
   GenerateBulletParams,
   GenerateProjectDescriptionParams,
+  GenerateSummaryParams,
 } from "@/interfaces/ai/ai";
 
 const AI_ENDPOINTS = {
@@ -18,6 +19,10 @@ const AI_ENDPOINTS = {
     "/health",
     "",
   )}/ai/generate-description`,
+  GENERATE_SUMMARY: `${API_ENDPOINTS.HEALTH.replace(
+    "/health",
+    "",
+  )}/ai/generate-summary`,
 };
 
 /**
@@ -86,5 +91,41 @@ export async function fetchBullets(
     const text = decoder.decode(value, { stream: true });
     chunks.push(text);
     onBulletsUpdate(chunks);
+  }
+}
+
+/**
+ * Generate a professional summary with streaming
+ */
+export async function generateSummaryText(
+  params: GenerateSummaryParams,
+  onUpdate: (chunks: string[]) => void,
+): Promise<void> {
+  const response = await fetch(AI_ENDPOINTS.GENERATE_SUMMARY, {
+    method: "POST",
+    headers: REQUEST_CONFIG.headers,
+    body: JSON.stringify(params),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Failed to generate summary");
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error("No response body");
+  }
+
+  const decoder = new TextDecoder();
+  const chunks: string[] = [];
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const text = decoder.decode(value, { stream: true });
+    chunks.push(text);
+    onUpdate(chunks);
   }
 }

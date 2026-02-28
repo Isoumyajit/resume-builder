@@ -1,4 +1,5 @@
 const sections: Record<string, string> = {
+  summary: "summary",
   experience: "experience",
   education: "education",
   projects: "projects",

@@ -28,7 +28,6 @@ function generateExperienceHtml(experience = []) {
       <div class="experience-role">
         <span class="experience-title">${escapeHtml(exp.title || "")}</span>
       </div>
-      
       ${exp.techStack ? `<div class="experience-tech-stack">Tech Stack: <span>${escapeHtml(exp.techStack)}</span></div>` : ""}
       ${
         exp.bullets && exp.bullets.length > 0

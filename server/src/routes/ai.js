@@ -8,6 +8,7 @@ const { loggers } = require("../config/logger");
 const {
   generateExperienceBullet,
   generateProjectDescription,
+  generateSummary,
 } = require("../services/ai/text-generation");
 
 const router = express.Router();
@@ -77,6 +78,40 @@ router.post("/generate-description", async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || "Failed to generate description",
+    });
+  }
+});
+
+/**
+ * @route   POST /api/v1/ai/generate-summary
+ * @desc    Generate a professional summary
+ * @access  Public
+ */
+router.post("/generate-summary", async (req, res) => {
+  try {
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.setHeader("Transfer-Encoding", "chunked");
+    const { jobTitle, yearsOfExperience, keySkills } = req.body;
+    const summaryStream = generateSummary({
+      jobTitle,
+      yearsOfExperience,
+      keySkills,
+    });
+
+    for await (const chunk of summaryStream) {
+      res.write(chunk);
+    }
+
+    res.end();
+  } catch (error) {
+    loggers.app.error(
+      { event: "ai_summary_error", error: error.message },
+      "Failed to generate summary",
+    );
+
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to generate summary",
     });
   }
 });

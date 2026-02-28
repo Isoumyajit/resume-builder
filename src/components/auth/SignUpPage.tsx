@@ -74,7 +74,7 @@ export function SignUpPage() {
 
     try {
       await signUp(email, password, displayName.trim());
-      navigate("/");
+      navigate("/templates");
     } catch (err) {
       setError(getFirebaseErrorMessage(err));
     } finally {
@@ -88,7 +88,7 @@ export function SignUpPage() {
 
     try {
       await signInWithGoogle();
-      navigate("/");
+      navigate("/templates");
     } catch (err) {
       setError(getFirebaseErrorMessage(err));
     } finally {

@@ -6,8 +6,8 @@ const experienceStyles = `
   .experience-header-content {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    flex-wrap: wrap;
+    align-items: center;
+    margin-right:  8px;
   }
 
   .experience-company {

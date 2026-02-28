@@ -14,17 +14,13 @@ import type { PdfPreviewProps } from "@/interfaces/components";
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
-  const [message, setMessage] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
+  const message = `It's recommended to have one pager resume for better readability`;
+
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    if (numPages && numPages > 1) {
-      setMessage(
-        `It's recommended to have one pager resume for better readability`,
-      );
-    }
     setNumPages(numPages);
     setPageNumber(1);
     setPdfError(null);
@@ -101,7 +97,7 @@ export function PdfPreview({ pdfUrl, isLoading, error }: PdfPreviewProps) {
   // PDF display
   return (
     <div className="rb-pdf-preview flex flex-col h-full">
-      {message && (
+      {numPages && numPages > 1 && (
         <div className="rb-pdf-preview__message flex items-center justify-center gap-2 text-center text-sm text-gray-500 dark:text-gray-400 mt-4 mb-4">
           <AlertCircle className=" text-blue-500 dark:text-blue-400" />
           <span className="font-medium">{message}</span>

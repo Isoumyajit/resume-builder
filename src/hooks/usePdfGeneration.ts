@@ -8,12 +8,12 @@ export function usePdfGeneration() {
   const [error, setError] = useState<string | null>(null);
 
   const generate = useCallback(
-    async (data: ResumeFormData) => {
+    async (data: ResumeFormData, templateId: string = "classic") => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const blob = await generatePdf(data);
+        const blob = await generatePdf(data, templateId);
 
         // Revoke previous URL to prevent memory leak
         if (pdfUrl) {

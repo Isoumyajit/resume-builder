@@ -13,9 +13,11 @@ const { generateEducationHtml } = require("./templates/educationCreator");
 const { generateProjectsHtml } = require("./templates/projectsCreator");
 const { generateSkillsHtml } = require("./templates/skillsCreator");
 const { generateProfileLinksHtml } = require("./templates/profileLinksCreator");
+const { generateSummaryHtml } = require("./templates/summaryCreator");
 const { generateAchievementsHtml } = require("./templates/achievementsCreator");
 
 const sectionRenderers = {
+  summary: (data) => generateSummaryHtml(data.summary),
   experience: (data) => generateExperienceHtml(data.experience),
   education: (data) => generateEducationHtml(data.education),
   projects: (data) => generateProjectsHtml(data.projects),
@@ -25,6 +27,7 @@ const sectionRenderers = {
 };
 
 const DEFAULT_SECTION_RENDERER = [
+  "summary",
   "experience",
   "education",
   "projects",
@@ -39,12 +42,14 @@ const DEFAULT_SECTION_RENDERER = [
 function generateHtmlTemplate(data) {
   const {
     personalInfo = {},
+    summary = {},
     experience = [],
     education = [],
     projects = [],
     profileLinks = {},
     skills = {},
     achievements = [],
+    templateType = "classic",
   } = data;
   const orders = Array.isArray(data.sectionOrder)
     ? data.sectionOrder
@@ -64,11 +69,11 @@ function generateHtmlTemplate(data) {
   <title>${escapeHtml(personalInfo.name || "Resume")}</title>
   ${getHeadLinks()}
   <style>
-    ${getFontImports()}
-    ${getAllStyles()}
+    ${getFontImports(templateType)}
+    ${getAllStyles(templateType)}
   </style>
 </head>
-<body>
+<body data-template="${escapeHtml(templateType)}">
   <div class="container">
     ${generateHeaderHtml(personalInfo)}
     ${sections}

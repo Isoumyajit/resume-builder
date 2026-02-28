@@ -18,7 +18,7 @@ function renderGuestRoute() {
           <Route element={<GuestRoute />}>
             <Route path="/login" element={<div>Login Page</div>} />
           </Route>
-          <Route path="/" element={<div>Home Page</div>} />
+          <Route path="/templates" element={<div>Templates Page</div>} />
         </Routes>
       </AuthProvider>
     </MemoryRouter>,
@@ -38,10 +38,9 @@ describe("GuestRoute", () => {
     expect(screen.getByText("Login Page")).toBeInTheDocument();
   });
 
-  it("should redirect to / when user is authenticated", () => {
-    // Default mock emits a test user
+  it("should redirect to /templates when user is authenticated", () => {
     renderGuestRoute();
-    expect(screen.getByText("Home Page")).toBeInTheDocument();
+    expect(screen.getByText("Templates Page")).toBeInTheDocument();
     expect(screen.queryByText("Login Page")).not.toBeInTheDocument();
   });
 

@@ -33,7 +33,7 @@ export function LoginPage() {
 
     try {
       await signIn(email, password);
-      navigate("/");
+      navigate("/templates");
     } catch (err) {
       setError(getFirebaseErrorMessage(err));
     } finally {
@@ -47,7 +47,7 @@ export function LoginPage() {
 
     try {
       await signInWithGoogle();
-      navigate("/");
+      navigate("/templates");
     } catch (err) {
       setError(getFirebaseErrorMessage(err));
     } finally {

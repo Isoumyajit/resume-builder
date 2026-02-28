@@ -6,7 +6,10 @@ const baseStyles = `
   }
   
   body {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
     font-size: 10pt;
+    font-weight: 400;
     line-height: 1.4;
     color: #333;
   }
@@ -31,13 +34,6 @@ const baseStyles = `
     'wght' 400,
     'GRAD' 0,
     'opsz' 20
-  }
-
-  .montserrat-400 {
-    font-family: "Montserrat", sans-serif;
-    font-optical-sizing: auto;
-    font-weight: 400;
-    font-style: normal;
   }
 `;
 

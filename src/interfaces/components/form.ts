@@ -80,6 +80,12 @@ export interface ProfileLinksFormProps {
   dragHandleRef?: RefObject<HTMLDivElement | null>;
 }
 
+// SummaryForm component props
+export interface SummaryFormProps {
+  form: UseFormReturn<ResumeFormData>;
+  dragHandleRef?: RefObject<HTMLDivElement | null>;
+}
+
 // SkillsForm component props
 export interface SkillsFormProps {
   form: UseFormReturn<ResumeFormData>;

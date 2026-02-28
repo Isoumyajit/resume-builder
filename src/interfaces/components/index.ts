@@ -4,6 +4,7 @@ export type {
   FormRowProps,
   FormFieldProps,
   PersonalInfoFormProps,
+  SummaryFormProps,
   ExperienceFormProps,
   EducationFormProps,
   ProjectsFormProps,

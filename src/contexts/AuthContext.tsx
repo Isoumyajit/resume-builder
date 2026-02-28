@@ -98,6 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
+  localStorage.removeItem("rb-template-id");
   const context = useContext(AuthContext);
 
   if (context === undefined) {

@@ -7,7 +7,7 @@ import { useSaveShortcut } from "./useKeyboardShortcut";
  * Main business logic hook for the Resume Builder application.
  * Combines form management, PDF generation, and keyboard shortcuts.
  */
-export function useResumeBuilder() {
+export function useResumeBuilder(templateId: string = "classic") {
   // Form state and handlers
   const {
     form,
@@ -32,8 +32,8 @@ export function useResumeBuilder() {
 
   // Handle PDF generation from form data
   const handleGenerate = useCallback(() => {
-    form.handleSubmit((data) => generate(data))();
-  }, [form, generate]);
+    form.handleSubmit((data) => generate(data, templateId))();
+  }, [form, generate, templateId]);
 
   // Register keyboard shortcut (Ctrl+S)
   useSaveShortcut(handleGenerate);

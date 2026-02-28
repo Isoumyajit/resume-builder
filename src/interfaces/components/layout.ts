@@ -10,9 +10,10 @@ import type { LucideIcon } from "lucide-react";
 
 // Header component props
 export interface HeaderProps {
-  onDownload: () => void;
-  canDownload: boolean;
-  isGenerating: boolean;
+  subtitle?: string;
+  onDownload?: () => void;
+  canDownload?: boolean;
+  isGenerating?: boolean;
 }
 
 // SplitPane component props

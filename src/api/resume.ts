@@ -21,7 +21,10 @@ export class ApiError extends Error {
  * Generate a PDF from resume data
  * Sends form data to backend, which compiles LaTeX and returns PDF
  */
-export async function generatePdf(data: ResumeFormData): Promise<Blob> {
+export async function generatePdf(
+  data: ResumeFormData,
+  templateId: string = "classic",
+): Promise<Blob> {
   const controller = new AbortController();
   const timeoutId = setTimeout(
     () => controller.abort(),
@@ -32,7 +35,7 @@ export async function generatePdf(data: ResumeFormData): Promise<Blob> {
     const response = await fetch(API_ENDPOINTS.GENERATE_PDF, {
       method: "POST",
       headers: REQUEST_CONFIG.headers,
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, templateType: templateId }),
       signal: controller.signal,
     });
 

@@ -1,10 +1,12 @@
 import {
   fetchBullets,
   generateProjectDescription as fetchDescription,
+  generateSummaryText as fetchSummary,
 } from "@/api/ai";
 import type {
   GenerateBulletParams,
   GenerateProjectDescriptionParams,
+  GenerateSummaryParams,
 } from "@/interfaces/ai/ai";
 import { useState, useCallback } from "react";
 import type { UseFormSetValue } from "react-hook-form";
@@ -17,6 +19,7 @@ interface UseAiServiceOptions {
 export function useAiService({ setValue }: UseAiServiceOptions) {
   const [isGenerating, setIsGenerating] = useState<number[]>([]);
   const [isGeneratingBullets, setIsGeneratingBullets] = useState<number[]>([]);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isAiServiceRunning, setIsAiServiceRunning] = useState<{
     [key: number]: boolean;
   }>({});
@@ -83,9 +86,31 @@ export function useAiService({ setValue }: UseAiServiceOptions) {
     [setValue],
   );
 
+  const generateSummary = useCallback(
+    async (params: GenerateSummaryParams) => {
+      try {
+        setIsGeneratingSummary(true);
+
+        const updateSummary = (chunks: string[]) => {
+          const fullText = chunks.join("");
+          setValue("summary.text", fullText);
+        };
+
+        await fetchSummary(params, updateSummary);
+      } catch {
+        // silently handled
+      } finally {
+        setIsGeneratingSummary(false);
+      }
+    },
+    [setValue],
+  );
+
   return {
     generateDescription,
     isGenerating,
+    generateSummary,
+    isGeneratingSummary,
     isGeneratingBullets,
     isAiServiceRunning,
     generateBullets,
