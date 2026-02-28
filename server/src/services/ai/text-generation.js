@@ -30,10 +30,15 @@ Requirements:
 - No bullet symbol, just the text
 - Professional, concise language
 - 4 bullet points
-- Each bullet point should be 250 characters minimum
-- Each bullet point should be 270 characters maximum strictly
-- If the bullet point is more than 270 characters then first shorten it.
-- The points should be strictly 270 characters maximum at any cost.
+- Each bullet point should be a one or two sentence bullet point
+- Each point should be a different aspect of the role or responsibility
+- Each point should be a one liner
+- Each bullet point should be a professional, concise language
+- After one bullet point, add a new line
+- Each bullet point should be 100 characters minimum
+- Each bullet point should be 200 characters maximum strictly
+- If the bullet point is more than 200 characters then first shorten it.
+- The points should be strictly 200 characters maximum at any cost.
 - Each bullet point should be a one or two sentence bullet point
 - Each bullet point should be a professional, concise language
 - After one bullet point, add a new line
@@ -76,7 +81,34 @@ Return ONLY the description text.`;
   yield* streamContent(prompt);
 }
 
+/**
+ * Stream a professional summary
+ */
+async function* generateSummary({
+  jobTitle,
+  yearsOfExperience,
+  keySkills = "",
+}) {
+  const prompt = `Generate a professional resume summary:
+Job Title: ${jobTitle}
+Years of Experience: ${yearsOfExperience}
+Key Skills: ${keySkills || "N/A"}
+
+Requirements:
+- 2-3 concise sentences
+- Professional, first-person implied tone (no "I")
+- Highlight expertise, key skills, and career impact
+- Max 400 characters strictly
+- No bullet points
+- Do not start with "Summary:" or any label
+
+Return ONLY the summary text.`;
+
+  yield* streamContent(prompt);
+}
+
 module.exports = {
   generateExperienceBullet,
   generateProjectDescription,
+  generateSummary,
 };

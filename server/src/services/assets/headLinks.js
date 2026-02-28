@@ -12,12 +12,19 @@ function getHeadLinks() {
     .join("\n  ");
 }
 
-const fontImports = [
-  "@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');",
-];
+const fontImportsByTemplate = {
+  classic: [
+    "@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');",
+  ],
+  "modern-accent": [
+    "@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');",
+  ],
+};
 
-function getFontImports() {
-  return fontImports.join("\n    ");
+function getFontImports(templateType = "classic") {
+  const imports =
+    fontImportsByTemplate[templateType] || fontImportsByTemplate.classic;
+  return imports.join("\n    ");
 }
 
 module.exports = {

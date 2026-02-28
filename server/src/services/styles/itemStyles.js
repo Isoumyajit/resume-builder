@@ -22,6 +22,7 @@ const itemStyles = `
     justify-content: space-between;
     font-size: 12pt;
     font-weight: 500;
+    margin-right:  8px;
     color:rgb(40, 40, 40);
   }
 

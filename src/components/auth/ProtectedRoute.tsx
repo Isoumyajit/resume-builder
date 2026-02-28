@@ -29,5 +29,12 @@ export function ProtectedRoute() {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  if (
+    location.pathname === "/templates" &&
+    localStorage.getItem("rb-template-id")
+  ) {
+    return <Navigate to="/build-resume" replace />;
+  }
+
   return <Outlet />;
 }

@@ -3,7 +3,6 @@ import { SplitPane } from "./SplitPane";
 import { ResumeFormPanel } from "./ResumeFormPanel";
 import { PreviewPanel } from "./PreviewPanel";
 import type { ResumeBuilderLayoutProps } from "@/interfaces/components";
-import Footer from "./Footer";
 
 export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
   const { form, pdf, actions } = state;
@@ -50,8 +49,6 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
           }
         />
       </main>
-
-      <Footer />
     </div>
   );
 }

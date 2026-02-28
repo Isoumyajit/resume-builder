@@ -6,6 +6,7 @@ import type { ResumeFormData } from "@/lib/validation";
 import { SortableSectionItem } from "./SortableSectionItem";
 import { reorderByEdge } from "@/lib/utils/reorder";
 import {
+  SummaryForm,
   ExperienceForm,
   EducationForm,
   ProjectsForm,
@@ -58,6 +59,10 @@ export function SortableSectionList({
   toggleCurrentlyWorking,
 }: SortableSectionListProps) {
   const sectionRegistry: Record<string, SectionEntry> = {
+    summary: {
+      label: "Summary",
+      render: (ref) => <SummaryForm form={form} dragHandleRef={ref} />,
+    },
     experience: {
       label: "Work Experience",
       render: (ref) => (

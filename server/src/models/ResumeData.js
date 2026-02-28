@@ -15,6 +15,7 @@ const { randomUUID } = require("node:crypto");
 class ResumeData {
   constructor(data = {}) {
     this.personalInfo = new PersonalInfo(data.personalInfo || {});
+    this.summary = data.summary || { text: "" };
     this.experience = (data.experience || []).map((exp) => new Experience(exp));
     this.education = (data.education || []).map((edu) => new Education(edu));
     this.projects = (data.projects || []).map((proj) => new Project(proj));
@@ -25,6 +26,7 @@ class ResumeData {
     this.createdAt = data.createdAt || new Date();
     this.updatedAt = data.updatedAt || new Date();
     this.sectionOrder = data.sectionOrder;
+    this.templateType = data?.templateType || "classic";
   }
 
   transformedAchievements() {
@@ -49,6 +51,10 @@ class ResumeData {
    */
   validate() {
     const errors = [];
+
+    if (this.summary?.text && this.summary.text.length > 400) {
+      errors.push("Summary: Must be 400 characters or less");
+    }
 
     const personalInfoValidation = this.personalInfo.validate();
     if (!personalInfoValidation.isValid) {
@@ -112,6 +118,7 @@ class ResumeData {
   toJSON() {
     return {
       personalInfo: this.personalInfo.toJSON(),
+      summary: this.summary,
       experience: this.experience.map((exp) => exp.toJSON()),
       education: this.education.map((edu) => edu.toJSON()),
       projects: this.projects.map((proj) => proj.toJSON()),
@@ -123,6 +130,7 @@ class ResumeData {
         updatedAt: this.updatedAt,
       },
       sectionOrder: this.sectionOrder,
+      templateType: this.templateType,
     };
   }
 

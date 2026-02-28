@@ -11,3 +11,9 @@ export interface GenerateProjectDescriptionParams {
   techStack: string;
   url?: string;
 }
+
+export interface GenerateSummaryParams {
+  jobTitle: string;
+  yearsOfExperience: string;
+  keySkills: string;
+}

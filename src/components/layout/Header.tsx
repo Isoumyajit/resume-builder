@@ -29,7 +29,12 @@ function getInitials(displayName: string | null, email: string | null): string {
   return "U";
 }
 
-export function Header({ onDownload, canDownload, isGenerating }: HeaderProps) {
+export function Header({
+  subtitle,
+  onDownload,
+  canDownload,
+  isGenerating,
+}: HeaderProps) {
   const { user, signOut } = useAuth();
 
   const displayName = user?.displayName ?? null;
@@ -38,32 +43,34 @@ export function Header({ onDownload, canDownload, isGenerating }: HeaderProps) {
   const initials = getInitials(displayName, email);
 
   return (
-    <header className="rb-header border-b border-gray-300 bg-gray-200 px-6 py-4 dark:bg-gray-900 dark:border-gray-700">
+    <header className="rb-header border-b border-gray-300 bg-gray-200 px-4 py-2 dark:bg-gray-900 dark:border-gray-700">
       <div className="rb-header__container flex items-center justify-between">
-        <div className="rb-header__brand flex items-center gap-3">
-          <div className="rb-header__logo flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 dark:bg-indigo-500">
-            <FileText className="h-6 w-6 text-white dark:text-gray-900" />
+        <div className="rb-header__brand flex items-center gap-2">
+          <div className="rb-header__logo flex h-8 w-8 items-center justify-center rounded-md bg-indigo-600 dark:bg-indigo-500">
+            <FileText className="h-4.5 w-4.5 text-white dark:text-gray-900" />
           </div>
           <div className="rb-header__info">
-            <h1 className="rb-header__title text-xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="rb-header__title text-base font-bold leading-tight text-gray-900 dark:text-gray-100">
               {TITLE}
             </h1>
-            <p className="rb-header__subtitle text-sm text-gray-500 dark:text-gray-400">
-              {SUBTITLE}
+            <p className="rb-header__subtitle text-xs text-gray-500 dark:text-gray-400">
+              {subtitle ?? SUBTITLE}
             </p>
           </div>
         </div>
 
-        <div className="rb-header__actions flex items-center gap-3">
+        <div className="rb-header__actions flex items-center gap-2">
           <ThemeToggle size="sm" />
-          <Button
-            onClick={onDownload}
-            disabled={!canDownload || isGenerating}
-            className="rb-header__download-button gap-2 cursor-pointer"
-          >
-            <Download className="h-4 w-4" />
-            {DOWNLOAD_BUTTON_TEXT}
-          </Button>
+          {onDownload && (
+            <Button
+              onClick={onDownload}
+              disabled={!canDownload || isGenerating}
+              className="rb-header__download-button gap-2 cursor-pointer"
+            >
+              <Download className="h-4 w-4" />
+              {DOWNLOAD_BUTTON_TEXT}
+            </Button>
+          )}
 
           {user && (
             <Popover>

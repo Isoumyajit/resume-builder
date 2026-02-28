@@ -75,7 +75,7 @@ export function FormRow({ children, columns = 2 }: FormRowProps) {
 }
 
 export function FormField({
-  label,
+  label = "",
   error,
   children,
   optional,

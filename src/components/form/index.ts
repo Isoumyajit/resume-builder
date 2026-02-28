@@ -1,5 +1,6 @@
 export { FormSection, FormRow, FormField } from "./FormSection";
 export { PersonalInfoForm } from "./PersonalInfoForm";
+export { SummaryForm } from "./SummaryForm";
 export { ExperienceForm } from "./ExperienceForm";
 export { EducationForm } from "./EducationForm";
 export { ProjectsForm } from "./ProjectsForm";

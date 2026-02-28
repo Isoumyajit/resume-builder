@@ -28,6 +28,12 @@ const headerStyles = `
     gap: 0;
     font-size: 10pt;
   }
+  .header .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
   
   .header .contact a {
     color: #000;
@@ -37,6 +43,10 @@ const headerStyles = `
   .header .links .link {
     text-decoration: underline;
     color: #000;
+  }
+
+  .header .header-divider {
+    display: none;
   }
 `;
 

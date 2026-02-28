@@ -178,4 +178,52 @@ describe("generateHtmlTemplate", () => {
     const html = generateHtmlTemplate(makeFullData());
     expect(html).toContain('<div class="container">');
   });
+
+  // ── Template type support ───────────────────────────────────────────
+  describe("template type support", () => {
+    it("defaults to classic template with Montserrat font", () => {
+      const html = generateHtmlTemplate(makeFullData());
+      expect(html).toContain('data-template="classic"');
+      expect(html).toContain("Montserrat");
+      expect(html).not.toContain("Inter");
+    });
+
+    it("applies classic template explicitly", () => {
+      const data = { ...makeFullData(), templateType: "classic" };
+      const html = generateHtmlTemplate(data);
+      expect(html).toContain('data-template="classic"');
+      expect(html).toContain("Montserrat");
+    });
+
+    it("applies modern-accent template with Inter font import", () => {
+      const data = { ...makeFullData(), templateType: "modern-accent" };
+      const html = generateHtmlTemplate(data);
+      expect(html).toContain('data-template="modern-accent"');
+      expect(html).toContain(
+        "@import url('https://fonts.googleapis.com/css2?family=Inter",
+      );
+      expect(html).toContain('font-family: "Inter", sans-serif');
+    });
+
+    it("includes modern-accent style overrides", () => {
+      const data = { ...makeFullData(), templateType: "modern-accent" };
+      const html = generateHtmlTemplate(data);
+      expect(html).toContain("border-left: 3px solid #2563EB");
+      expect(html).toContain("text-transform: uppercase");
+    });
+
+    it("does not include modern-accent overrides for classic", () => {
+      const html = generateHtmlTemplate(makeFullData());
+      expect(html).not.toContain("border-left: 3px solid #2563EB");
+    });
+
+    it("escapes HTML in templateType", () => {
+      const data = {
+        ...makeFullData(),
+        templateType: '<script>alert("xss")</script>',
+      };
+      const html = generateHtmlTemplate(data);
+      expect(html).not.toContain("<script>");
+    });
+  });
 });

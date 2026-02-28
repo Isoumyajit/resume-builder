@@ -166,6 +166,14 @@ export const skillsSchema = z.object({
   other: z.string().optional().default(""),
 });
 
+export const summarySchema = z.object({
+  text: z
+    .string()
+    .max(400, "Summary must be 400 characters or less")
+    .optional()
+    .default(""),
+});
+
 export const achievementSchema = z
   .object({
     id: z.string(),
@@ -183,6 +191,7 @@ export const achievementSchema = z
 
 export const resumeSchema = z.object({
   personalInfo: personalInfoSchema,
+  summary: summarySchema.optional().default({ text: "" }),
   experience: z.array(experienceSchema),
   education: z.array(educationSchema).optional().default([]),
   projects: z.array(projectSchema).optional().default([]),
@@ -192,6 +201,7 @@ export const resumeSchema = z.object({
   sectionOrder: z
     .array(
       z.enum([
+        sections.summary,
         sections.experience,
         sections.education,
         sections.projects,
@@ -202,6 +212,7 @@ export const resumeSchema = z.object({
     )
     .optional()
     .default([
+      sections.summary,
       sections.experience,
       sections.education,
       sections.projects,

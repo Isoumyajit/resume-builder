@@ -31,30 +31,31 @@ function generateHeaderHtml(personalInfo = {}) {
     <div class="header">
       <h3 class="name">${getNameHtml(personalInfo.name || "")}</h3>
       <div class="contact">
-        ${
+        <div class="contact-item">${
           personalInfo.location
             ? `<img width="16" height="16" src="${ICON_URLS.location}" alt="location"/><span>${escapeHtml(personalInfo.location)}</span>`
             : ""
-        }
+        }</div>
         ${personalInfo.location ? `<span class="vr-divider"></span>` : ""}
-        ${
+        <div class="contact-item">${
           personalInfo.phone
             ? `<img width="16" height="16" src="${ICON_URLS.phone}" alt="phone"/><span>${escapeHtml(personalInfo.phone)}</span>`
             : ""
-        }
+        }</div>
         ${personalInfo.phone && personalInfo.email ? `<span class="vr-divider"></span>` : ""}
-        ${
+        <div class="contact-item">${
           personalInfo.email
             ? `<img width="16" height="16" src="${ICON_URLS.mail}" alt="mail"/> <a href="mailto:${personalInfo.email}">${escapeHtml(personalInfo.email)}</a>`
             : ""
-        }
+        }</div>
         ${personalInfo.linkedin?.url ? `<span class="vr-divider"></span>` : ""}
-        ${
+        <div class="contact-item">${
           personalInfo.linkedin?.url
             ? `<img width="16" height="16" src="${ICON_URLS.linkedin}" alt="linkedin"/> <a class="link" href="${personalInfo.linkedin.url}">${escapeHtml(personalInfo.linkedin.displayText || personalInfo.linkedin.url)}</a>`
             : ""
-        }
+        }</div>
       </div>
+      <hr class="header-divider" />
     </div>
   `;
 }
