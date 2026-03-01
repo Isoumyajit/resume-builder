@@ -6,6 +6,7 @@ describe("PersonalInfo", () => {
     location: "New York, NY",
     phone: "555-123-4567",
     email: "john@example.com",
+    photo: "https://example.com/photo.jpg",
     linkedin: {
       url: "https://linkedin.com/in/johndoe",
       displayText: "johndoe",
