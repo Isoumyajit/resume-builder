@@ -48,6 +48,15 @@ const headerStyles = `
   .header .header-divider {
     display: none;
   }
+
+  .header .header-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header .header-photo {
+    display: none;
+  }
 `;
 
 module.exports = { headerStyles };

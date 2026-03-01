@@ -55,6 +55,7 @@ export const personalInfoSchema = z.object({
       displayText: z.string().optional(),
     })
     .optional(),
+  photo: z.string().optional().default(""),
 });
 
 export const experienceSchema = z

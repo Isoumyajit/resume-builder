@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useResumeBuilder } from "@/hooks";
 import { ResumeBuilderLayout } from "@/components/layout";
@@ -24,9 +25,11 @@ function ResumeBuilder() {
   const templateId =
     stateTemplateId ?? localStorage.getItem(TEMPLATE_STORAGE_KEY) ?? "classic";
 
-  if (stateTemplateId) {
-    localStorage.setItem(TEMPLATE_STORAGE_KEY, stateTemplateId);
-  }
+  useEffect(() => {
+    if (stateTemplateId) {
+      localStorage.setItem(TEMPLATE_STORAGE_KEY, stateTemplateId);
+    }
+  }, [stateTemplateId]);
 
   const resumeBuilderState = useResumeBuilder(templateId);
   return <ResumeBuilderLayout state={resumeBuilderState} />;

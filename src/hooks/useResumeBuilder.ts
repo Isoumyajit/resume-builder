@@ -69,5 +69,6 @@ export function useResumeBuilder(templateId: string = "classic") {
       generatePdf: handleGenerate,
       downloadPdf,
     },
+    templateId,
   };
 }
