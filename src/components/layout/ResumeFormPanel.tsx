@@ -1,4 +1,5 @@
 import { PersonalInfoForm } from "@/components/form";
+import { PhotoUpload } from "@/components/form/PhotoUpload";
 import { SortableSectionList } from "./SortableSectionList";
 import type { ResumeFormPanelProps } from "@/interfaces/components";
 
@@ -19,9 +20,11 @@ export function ResumeFormPanel({
   isGenerating,
   sectionOrder,
   onReorderSections,
+  templateId,
 }: ResumeFormPanelProps) {
   return (
     <div className="rb-app__form-panel space-y-6 max-w-3xl mx-auto">
+      {templateId === "modern-accent" && <PhotoUpload form={form} />}
       <PersonalInfoForm form={form} />
 
       <SortableSectionList

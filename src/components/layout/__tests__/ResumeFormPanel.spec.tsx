@@ -7,6 +7,10 @@ jest.mock("@/components/form", () =>
   jest.requireActual("@/components/form/__mocks__"),
 );
 
+jest.mock("@/components/form/PhotoUpload", () => ({
+  PhotoUpload: () => <div data-testid="photo-upload" />,
+}));
+
 jest.mock("../SortableSectionList", () => ({
   SortableSectionList: () => (
     <div data-testid="sortable-section-list">
@@ -24,6 +28,7 @@ function createDefaultProps(
   overrides: Partial<ResumeFormPanelProps> = {},
 ): ResumeFormPanelProps {
   return {
+    templateId: "modern-accent",
     form: {} as never,
     experienceArray: {} as never,
     educationArray: {} as never,

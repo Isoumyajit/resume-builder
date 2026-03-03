@@ -37,7 +37,7 @@ async function generateResumePdfPuppeteer(resumeData) {
       format: "A4",
       margin: {
         top: "0.2in",
-        bottom: "0.3in",
+        bottom: "0.2in",
         left: "0.3in",
         right: "0.3in",
       },

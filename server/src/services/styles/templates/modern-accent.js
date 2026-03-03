@@ -10,7 +10,12 @@ const modernAccentOverrides = `
   /* ── Header ─────────────────────────────────────────────────────── */
   ${T} .header {
     text-align: left;
-    margin-bottom: 12px;
+    margin-bottom: 1px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
   }
 
   ${T} .header .name {
@@ -34,6 +39,15 @@ const modernAccentOverrides = `
     display: none;
   }
 
+  ${T} .header .header-photo {
+    display: block;
+  }
+
+  ${T} .header .header-photo img {
+    height: 100px;
+    object-fit: cover;
+  }
+
   ${T} .header .contact a,
   ${T} .header .links .link {
     color: ${ACCENT};
@@ -45,7 +59,6 @@ const modernAccentOverrides = `
     display: block;
     border: none;
     border-top: 2px solid ${BORDER_COLOR};
-    margin-top: 8px;
     margin-bottom: 0;
   }
 

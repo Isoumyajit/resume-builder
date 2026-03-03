@@ -39,6 +39,7 @@ const defaultValues: ResumeFormData = {
     location: "",
     phone: "",
     email: "",
+    photo: "",
     linkedin: {
       url: "",
       displayText: "",

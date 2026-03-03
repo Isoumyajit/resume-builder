@@ -5,7 +5,7 @@ import { PreviewPanel } from "./PreviewPanel";
 import type { ResumeBuilderLayoutProps } from "@/interfaces/components";
 
 export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
-  const { form, pdf, actions } = state;
+  const { form, pdf, actions, templateId } = state;
 
   return (
     <div
@@ -38,6 +38,7 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
               isGenerating={pdf.isLoading}
               sectionOrder={form.sectionOrder}
               onReorderSections={form.handlers.reorderSections}
+              templateId={templateId}
             />
           }
           rightPanel={

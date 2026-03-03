@@ -50,6 +50,7 @@ function createMockState(
       generatePdf: jest.fn(),
       downloadPdf: jest.fn(),
     },
+    templateId: "classic",
   };
 }
 describe("ResumeBuilderLayout rendering", () => {

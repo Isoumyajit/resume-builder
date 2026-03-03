@@ -15,6 +15,7 @@ class PersonalInfo {
           displayText: data.linkedin.displayText || "",
         }
       : null;
+    this.photo = data.photo || "";
   }
 
   /**
@@ -108,6 +109,7 @@ class PersonalInfo {
       phone: this.phone,
       email: this.email,
       linkedin: this.linkedin,
+      photo: this.photo,
     };
   }
 
