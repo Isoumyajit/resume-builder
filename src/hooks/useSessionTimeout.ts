@@ -15,7 +15,7 @@ const ACTIVITY_EVENTS: (keyof DocumentEventMap)[] = [
 
 export function useSessionTimeout() {
   const { signOut } = useAuth();
-  const lastActivityRef = useRef<number>();
+  const lastActivityRef = useRef<number>(0);
   const lastWriteRef = useRef(0);
 
   const recordActivity = useCallback(() => {

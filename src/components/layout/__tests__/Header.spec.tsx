@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { DOWNLOAD_BUTTON_TEXT, Header, SUBTITLE, TITLE } from "../Header";
 import type { HeaderProps } from "@/interfaces/components/layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -21,11 +22,13 @@ function renderHeader(props = {}) {
   const mergedProps = { ...defaultProps, ...props };
 
   return render(
-    <AuthProvider>
-      <ThemeProvider defaultTheme="light">
-        <Header {...mergedProps} />
-      </ThemeProvider>
-    </AuthProvider>,
+    <MemoryRouter>
+      <AuthProvider>
+        <ThemeProvider defaultTheme="light">
+          <Header {...mergedProps} />
+        </ThemeProvider>
+      </AuthProvider>
+    </MemoryRouter>,
   );
 }
 

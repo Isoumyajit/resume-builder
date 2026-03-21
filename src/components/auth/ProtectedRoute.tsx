@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSessionTimeout } from "@/hooks";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 
 /**
  * Route guard that redirects unauthenticated users to /login.
