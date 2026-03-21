@@ -15,7 +15,7 @@ const ACTIVITY_EVENTS: (keyof DocumentEventMap)[] = [
 
 export function useSessionTimeout() {
   const { signOut } = useAuth();
-  const lastActivityRef = useRef(Date.now());
+  const lastActivityRef = useRef<number>();
   const lastWriteRef = useRef(0);
 
   const recordActivity = useCallback(() => {
@@ -34,7 +34,10 @@ export function useSessionTimeout() {
     }
 
     const intervalId = setInterval(() => {
-      if (Date.now() - lastActivityRef.current > SESSION_TIMEOUT) {
+      if (
+        lastActivityRef.current != null &&
+        Date.now() - lastActivityRef.current > SESSION_TIMEOUT
+      ) {
         signOut();
       }
     }, CHECK_INTERVAL);
