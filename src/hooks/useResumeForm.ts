@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { nanoid } from "nanoid";
 import { resumeSchema, type ResumeFormData } from "@/lib/validation";
 import sections from "@/lib/utils/section.order";
+import { AUTO_SAVE_KEY, useAutosave } from "./useAutosave";
 
 const STORAGE_KEY = "rb-section-order";
 
@@ -31,6 +32,19 @@ function loadSectionOrder(): string[] {
     // ignore parse errors
   }
   return DEFAULT_ORDER;
+}
+
+function loadResumeData(): ResumeFormData | null {
+  try {
+    const stored = localStorage.getItem(AUTO_SAVE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return parsed;
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 const defaultValues: ResumeFormData = {
@@ -68,9 +82,11 @@ const defaultValues: ResumeFormData = {
 export function useResumeForm() {
   const form = useForm<ResumeFormData>({
     resolver: zodResolver(resumeSchema) as Resolver<ResumeFormData>,
-    defaultValues,
+    defaultValues: loadResumeData() || defaultValues,
     mode: "onChange",
   });
+
+  const autoSaveStatus = useAutosave(form);
 
   const experienceArray = useFieldArray({
     control: form.control,
@@ -201,5 +217,6 @@ export function useResumeForm() {
     toggleCurrentlyWorking,
     sectionOrder,
     reorderSections,
+    autoSaveStatus,
   };
 }

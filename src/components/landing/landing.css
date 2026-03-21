@@ -1,0 +1,29 @@
+@keyframes landing-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(12deg);
+  }
+}
+
+.landing-pattern-diagonal {
+  background-size: 20px 20px;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    currentColor 0,
+    currentColor 1px,
+    transparent 0,
+    transparent 50%
+  );
+}
+
+.landing-pattern-cross {
+  background-image: radial-gradient(currentColor 0.8px, transparent 0.8px),
+    radial-gradient(currentColor 0.8px, transparent 0.8px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+}

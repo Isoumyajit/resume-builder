@@ -9,6 +9,7 @@ import {
   sendPasswordResetEmail,
   updateProfile,
 } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import { auth, googleProvider } from "@/config/firebase";
 
 /**
@@ -35,6 +36,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -70,6 +72,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signOut = async (): Promise<void> => {
     await firebaseSignOut(auth);
+    localStorage.removeItem("rb-template-id");
+    localStorage.removeItem("rb-resume-data");
+    localStorage.removeItem("rb-resume-timestamp");
+    localStorage.removeItem("rb-section-order");
+    navigate("/logged-out", { replace: true });
   };
 
   const resetPassword = async (email: string): Promise<void> => {
@@ -98,7 +105,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
  */
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
-  localStorage.removeItem("rb-template-id");
   const context = useContext(AuthContext);
 
   if (context === undefined) {

@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSessionTimeout } from "@/hooks";
 
 /**
  * Route guard that redirects unauthenticated users to /login.
@@ -16,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export function ProtectedRoute() {
   const { user, loading } = useAuth();
   const location = useLocation();
+  useSessionTimeout();
 
   if (loading) {
     return (
@@ -27,13 +29,6 @@ export function ProtectedRoute() {
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  if (
-    location.pathname === "/templates" &&
-    localStorage.getItem("rb-template-id")
-  ) {
-    return <Navigate to="/build-resume" replace />;
   }
 
   return <Outlet />;

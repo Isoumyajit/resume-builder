@@ -1,13 +1,17 @@
 import type { ComponentType } from "react";
-import { FileText, Palette } from "lucide-react";
-import { ClassicPreview, ModernAccentPreview } from "./previews";
+import { Briefcase, FileText, Palette } from "lucide-react";
+import {
+  ClassicPreview,
+  ExecutivePreview,
+  ModernAccentPreview,
+} from "./previews";
 
 export interface TemplateConfig {
   id: string;
   name: string;
   description: string;
   icon: ComponentType<{ className?: string }>;
-  Preview: ComponentType;
+  Preview: ComponentType<{ scale?: number }>;
 }
 
 export const templates: TemplateConfig[] = [
@@ -26,5 +30,13 @@ export const templates: TemplateConfig[] = [
       "Bold accent colors with modern typography and left-aligned sections",
     icon: Palette,
     Preview: ModernAccentPreview,
+  },
+  {
+    id: "executive",
+    name: "Executive",
+    description:
+      "Centered section titles with teal accents and professional styling",
+    icon: Briefcase,
+    Preview: ExecutivePreview,
   },
 ];

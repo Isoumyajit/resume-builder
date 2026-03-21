@@ -1,9 +1,11 @@
 const { classicOverrides } = require("./classic");
 const { modernAccentOverrides } = require("./modern-accent");
+const { executiveOverrides } = require("./executive");
 
 const templateRegistry = {
   classic: classicOverrides,
   "modern-accent": modernAccentOverrides,
+  executive: executiveOverrides,
 };
 
 /**

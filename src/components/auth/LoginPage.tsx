@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import "./auth.css";
 
 export function LoginPage() {
   const { signIn, signInWithGoogle } = useAuth();
@@ -58,8 +59,9 @@ export function LoginPage() {
   const isSubmitting = loading || googleLoading;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 dark:bg-gray-950">
-      <div className="w-full max-w-md space-y-8">
+    <div className="relative flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 dark:bg-gray-950">
+      <div className="auth-pattern-grid pointer-events-none absolute inset-0 text-gray-900/5 dark:text-white/5" />
+      <div className="relative w-full max-w-md space-y-8">
         <div className="flex flex-col items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 dark:bg-indigo-500">
             <FileText className="h-7 w-7 text-white dark:text-gray-900" />

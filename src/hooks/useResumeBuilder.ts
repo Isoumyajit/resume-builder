@@ -24,6 +24,7 @@ export function useResumeBuilder(templateId: string = "classic") {
     toggleCurrentlyWorking,
     sectionOrder,
     reorderSections,
+    autoSaveStatus,
   } = useResumeForm();
 
   // PDF generation state and handlers
@@ -70,5 +71,6 @@ export function useResumeBuilder(templateId: string = "classic") {
       downloadPdf,
     },
     templateId,
+    autoSaveStatus,
   };
 }

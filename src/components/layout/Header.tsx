@@ -1,4 +1,4 @@
-import { FileText, Download, LogOut } from "lucide-react";
+import { FileText, Download, LogOut, ClockIcon, CheckIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import type { HeaderProps } from "@/interfaces/components";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -34,6 +34,7 @@ export function Header({
   onDownload,
   canDownload,
   isGenerating,
+  autoSaveStatus,
 }: HeaderProps) {
   const { user, signOut } = useAuth();
 
@@ -60,6 +61,25 @@ export function Header({
         </div>
 
         <div className="rb-header__actions flex items-center gap-2">
+          {
+            <span
+              className={`rb-header__auto-save-status flex items-center gap-2 text-xs
+                ${autoSaveStatus === "Saved" ? "text-green-500" : "text-gray-500 dark:text-gray-400"}`}
+            >
+              {autoSaveStatus !== "Saved" && (
+                <>
+                  <ClockIcon className="h-3 w-3" />
+                  {autoSaveStatus}
+                </>
+              )}
+              {autoSaveStatus === "Saved" && (
+                <>
+                  <CheckIcon className="h-3 w-3" />
+                  {autoSaveStatus}
+                </>
+              )}
+            </span>
+          }
           <ThemeToggle size="sm" />
           {onDownload && (
             <Button

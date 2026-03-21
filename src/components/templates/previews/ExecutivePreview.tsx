@@ -1,8 +1,10 @@
-interface ClassicPreviewProps {
+const ACCENT = "#0E7490";
+
+interface ExecutivePreviewProps {
   scale?: number;
 }
 
-export function ClassicPreview({ scale = 1 }: ClassicPreviewProps) {
+export function ExecutivePreview({ scale = 1 }: ExecutivePreviewProps) {
   const s = (v: number) => v * scale;
   const pt = (v: number) => `${v * scale}pt`;
   const px = (v: number) => `${v * scale}px`;
@@ -20,59 +22,61 @@ export function ClassicPreview({ scale = 1 }: ClassicPreviewProps) {
     >
       <div style={{ textAlign: "center", marginBottom: px(4) }}>
         <div style={{ fontSize: pt(11), fontWeight: 400, color: "#000" }}>
-          <span style={{ fontSize: pt(13) }}>J</span>ohn{" "}
-          <span style={{ fontSize: pt(13) }}>D</span>oe
+          <span style={{ fontSize: pt(13) }}>M</span>ichael{" "}
+          <span style={{ fontSize: pt(13) }}>R</span>eynolds
         </div>
-        <div style={{ fontSize: pt(5), color: "#333" }}>
-          San Francisco, CA &nbsp;|&nbsp; john.doe@email.com &nbsp;|&nbsp; (555)
-          123-4567
+        <div style={{ fontSize: pt(5), color: ACCENT, marginTop: px(1) }}>
+          Chicago, IL &nbsp;|&nbsp; m.reynolds@email.com &nbsp;|&nbsp; (555)
+          321-9876
         </div>
       </div>
 
-      <hr
-        style={{
-          border: "none",
-          borderTop: `${s(0.5)}px solid #313131`,
-          margin: `${s(3)}px 0`,
-        }}
-      />
-
-      <Section title="Summary" scale={scale}>
-        <p>
-          Senior software engineer with 6+ years of experience building scalable
-          web applications. Proficient in React, Node.js, and cloud
-          infrastructure.
-        </p>
-      </Section>
-
       <Section title="Work Experience" scale={scale}>
         <ExpItem
-          company="Acme Corp"
-          location="San Francisco, CA"
-          dates="Jan 2022 — Present"
-          role="Senior Software Engineer"
+          company="Global Finance Corp"
+          location="Chicago, IL"
+          dates="Sep 2020 — Present"
+          role="Engineering Manager"
           bullets={[
-            "Led migration of monolithic app to microservices, reducing deploy time by 40%",
-            "Built real-time dashboard serving 50K+ daily active users",
+            "Managed team of 8 engineers delivering trading platform features",
+            "Implemented CI/CD pipeline reducing release cycles from 2 weeks to 2 days",
           ]}
           scale={scale}
         />
         <ExpItem
-          company="StartupXYZ"
-          location="Remote"
-          dates="Jun 2019 — Dec 2021"
-          role="Software Engineer"
+          company="MegaSoft Ltd."
+          location="Seattle, WA"
+          dates="Jan 2017 — Aug 2020"
+          role="Senior Developer"
           bullets={[
-            "Developed REST APIs handling 2M+ requests/day with 99.9% uptime",
+            "Designed event-driven architecture processing 500K events/hour",
           ]}
           scale={scale}
         />
+      </Section>
+
+      <Section title="Education" scale={scale}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <span style={{ fontWeight: 600, fontSize: pt(5.5), color: ACCENT }}>
+            University of Illinois
+          </span>
+          <span style={{ fontStyle: "italic", fontSize: pt(5), color: "#666" }}>
+            2013 — 2017
+          </span>
+        </div>
+        <div style={{ fontSize: pt(5.5) }}>B.S. Computer Science</div>
       </Section>
 
       <Section title="Skills" scale={scale}>
         <p>
-          <strong>Languages:</strong> TypeScript, Python, Go &nbsp;
-          <strong>Frameworks:</strong> React, Next.js, Express
+          <strong>Backend:</strong> Java, Kotlin, Go &nbsp;
+          <strong>Cloud:</strong> AWS, Kubernetes, Terraform
         </p>
       </Section>
     </div>
@@ -88,17 +92,20 @@ function Section({
   children: React.ReactNode;
   scale?: number;
 }) {
-  const pt = (v: number) => `${v * scale}pt`;
   const px = (v: number) => `${v * scale}px`;
+  const pt = (v: number) => `${v * scale}pt`;
 
   return (
     <div style={{ marginBottom: px(3) }}>
       <div
         style={{
+          textAlign: "center",
+          textTransform: "uppercase",
+          color: ACCENT,
           fontSize: pt(7),
-          fontWeight: 600,
-          color: "#000",
-          borderBottom: `${0.5 * scale}px solid #313131`,
+          fontWeight: 700,
+          letterSpacing: "0.5px",
+          borderBottom: `${scale}px solid ${ACCENT}`,
           paddingBottom: px(1),
           marginBottom: px(2),
         }}
@@ -137,7 +144,7 @@ function ExpItem({
           alignItems: "baseline",
         }}
       >
-        <span style={{ fontWeight: 600, fontSize: pt(5.5), color: "#333" }}>
+        <span style={{ fontWeight: 600, fontSize: pt(5.5), color: ACCENT }}>
           {company}
         </span>
         <span style={{ fontStyle: "italic", fontSize: pt(5), color: "#666" }}>

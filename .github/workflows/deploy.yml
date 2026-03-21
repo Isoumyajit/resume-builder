@@ -1,13 +1,14 @@
 # =============================================================================
-# GitHub Actions - Build and Deploy to Cloud Run
+# GitHub Actions - Build and Deploy
 # =============================================================================
-# Builds Docker images and deploys to Google Cloud Run using Workload Identity
-# Federation. Called by CI pipeline after all tests pass.
+# Builds and deploys backend to Google Cloud Run and frontend to Vercel.
+# Called by CI pipeline after all tests pass.
 #
-# Includes post-deploy health checks to verify both services are responding.
+# Pipeline: deploy-backend → health-check-backend → deploy-frontend → health-check-frontend
+# If the backend health check fails, the frontend never deploys.
 # =============================================================================
 
-name: Build and Deploy to Cloud Run
+name: Build and Deploy
 
 on:
   workflow_call:
@@ -38,6 +39,12 @@ on:
         required: true
       VITE_FIREBASE_APP_ID:
         required: true
+      VERCEL_TOKEN:
+        required: true
+      VERCEL_ORG_ID:
+        required: true
+      VERCEL_PROJECT_ID:
+        required: true
 
   workflow_dispatch:
     inputs:
@@ -57,22 +64,17 @@ env:
   REGION: ${{ secrets.GCP_REGION }}
   WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
   GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-  VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-  VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-  VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-  VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-  VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-  VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-  FRONTEND_SERVICE: resume-builder-frontend
   BACKEND_SERVICE: resume-builder-backend
 
 jobs:
-  deploy:
-    name: Deploy to Cloud Run
+  # ===========================================================================
+  # Job 1: Deploy Backend to Cloud Run
+  # ===========================================================================
+  deploy-backend:
+    name: Deploy Backend
     runs-on: ubuntu-latest
     outputs:
       backend_url: ${{ steps.deploy-backend.outputs.backend_url }}
-      frontend_url: ${{ steps.deploy-frontend.outputs.frontend_url }}
     permissions:
       contents: read
       id-token: write
@@ -115,70 +117,28 @@ jobs:
             --project=${{ env.PROJECT_ID }} \
             --set-env-vars="NODE_ENV=production,GEMINI_API_KEY=${{ env.GEMINI_API_KEY }}"
 
-          # Get the service URL
           BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} \
             --region=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }} \
             --format="value(status.url)")
           echo "backend_url=${BACKEND_URL}" >> $GITHUB_OUTPUT
-          echo "BACKEND_URL=${BACKEND_URL}" >> $GITHUB_ENV
           echo "Backend deployed to: ${BACKEND_URL}"
 
-      - name: Build and Push Frontend
-        run: |
-          FRONTEND_IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/resume-builder/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}"
-          docker build --tag "${FRONTEND_IMAGE}" \
-            --build-arg VITE_API_URL=${{ env.BACKEND_URL }} \
-            --build-arg VITE_API_VERSION=v1 \
-            --build-arg VITE_NODE_ENV=production \
-            --build-arg VITE_FIREBASE_API_KEY=${{ env.VITE_FIREBASE_API_KEY }} \
-            --build-arg VITE_FIREBASE_AUTH_DOMAIN=${{ env.VITE_FIREBASE_AUTH_DOMAIN }} \
-            --build-arg VITE_FIREBASE_PROJECT_ID=${{ env.VITE_FIREBASE_PROJECT_ID }} \
-            --build-arg VITE_FIREBASE_STORAGE_BUCKET=${{ env.VITE_FIREBASE_STORAGE_BUCKET }} \
-            --build-arg VITE_FIREBASE_MESSAGING_SENDER_ID=${{ env.VITE_FIREBASE_MESSAGING_SENDER_ID }} \
-            --build-arg VITE_FIREBASE_APP_ID=${{ env.VITE_FIREBASE_APP_ID }} \
-            -f Dockerfile .
-          docker push "${FRONTEND_IMAGE}"
-          echo "FRONTEND_IMAGE=${FRONTEND_IMAGE}" >> $GITHUB_ENV
-
-      - name: Deploy Frontend
-        id: deploy-frontend
-        run: |
-          gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
-            --image=${{ env.FRONTEND_IMAGE }} \
-            --region=${{ env.REGION }} \
-            --project=${{ env.PROJECT_ID }} \
-            --platform=managed \
-            --port=80 \
-            --memory=512Mi \
-            --cpu=1 \
-            --min-instances=0 \
-            --max-instances=3 \
-            --format="value(status.url)"
-
-          # Get the service URL
-          FRONTEND_URL=$(gcloud run services describe ${{ env.FRONTEND_SERVICE }} \
-            --region=${{ env.REGION }} \
-            --project=${{ env.PROJECT_ID }} \
-            --format="value(status.url)")
-          echo "frontend_url=${FRONTEND_URL}" >> $GITHUB_OUTPUT
-          echo "Frontend deployed to: ${FRONTEND_URL}"
-
   # ===========================================================================
-  # Post-Deploy Health Checks
+  # Job 2: Backend Health Check
   # ===========================================================================
-  health-check:
-    name: Health Check
+  health-check-backend:
+    name: Backend Health Check
     runs-on: ubuntu-latest
-    needs: deploy
+    needs: deploy-backend
     steps:
-      - name: Wait for services to stabilize
+      - name: Wait for service to stabilize
         run: sleep 15
 
       - name: Check Backend Health
         id: backend-health
         run: |
-          BACKEND_URL="${{ needs.deploy.outputs.backend_url }}"
+          BACKEND_URL="${{ needs.deploy-backend.outputs.backend_url }}"
           echo "Checking backend at: ${BACKEND_URL}/api/v1/health"
 
           HTTP_STATUS=$(curl -s -o /tmp/backend-response.json -w "%{http_code}" \
@@ -197,10 +157,70 @@ jobs:
             exit 1
           fi
 
+  # ===========================================================================
+  # Job 3: Deploy Frontend to Vercel
+  # ===========================================================================
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, health-check-backend]
+    outputs:
+      frontend_url: ${{ steps.deploy-frontend.outputs.frontend_url }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Pull Vercel Project Config
+        run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build with Vercel
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VITE_API_URL: ${{ needs.deploy-backend.outputs.backend_url }}
+          VITE_API_VERSION: v1
+          VITE_NODE_ENV: production
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+
+      - name: Deploy to Vercel
+        id: deploy-frontend
+        run: |
+          FRONTEND_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "frontend_url=${FRONTEND_URL}" >> $GITHUB_OUTPUT
+          echo "Frontend deployed to: ${FRONTEND_URL}"
+
+  # ===========================================================================
+  # Job 4: Frontend Health Check
+  # ===========================================================================
+  health-check-frontend:
+    name: Frontend Health Check
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    steps:
+      - name: Wait for deployment to propagate
+        run: sleep 15
+
       - name: Check Frontend Health
         id: frontend-health
         run: |
-          FRONTEND_URL="${{ needs.deploy.outputs.frontend_url }}"
+          FRONTEND_URL="${{ needs.deploy-frontend.outputs.frontend_url }}"
           echo "Checking frontend at: ${FRONTEND_URL}"
 
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -225,7 +245,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Service | URL | Health |" >> $GITHUB_STEP_SUMMARY
           echo "|---------|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Backend | ${{ needs.deploy.outputs.backend_url }} | ${{ steps.backend-health.outputs.healthy == 'true' && '✅ Healthy' || '❌ Unhealthy' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Frontend | ${{ needs.deploy.outputs.frontend_url }} | ${{ steps.frontend-health.outputs.healthy == 'true' && '✅ Healthy' || '❌ Unhealthy' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend | ${{ needs.deploy-backend.outputs.backend_url }} | ✅ Healthy |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | ${{ needs.deploy-frontend.outputs.frontend_url }} | ${{ steps.frontend-health.outputs.healthy == 'true' && '✅ Healthy' || '❌ Unhealthy' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY

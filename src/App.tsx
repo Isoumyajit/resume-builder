@@ -6,9 +6,13 @@ import {
   LoginPage,
   SignUpPage,
   ForgotPasswordPage,
+  LoggedOutPage,
+  NotFoundPage,
   ProtectedRoute,
   GuestRoute,
+  ErrorBoundary,
 } from "@/components/auth";
+import { LandingPage } from "@/components/landing/LandingPage";
 import { TemplateSelectionPage } from "@/components/templates";
 import "./App.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -38,21 +42,25 @@ function ResumeBuilder() {
 function App() {
   return (
     <ThemeProvider>
-      <TooltipProvider delayDuration={300}>
-        <Routes>
-          <Route element={<GuestRoute />}>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          </Route>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/templates" element={<TemplateSelectionPage />} />
-            <Route path="/build-resume" element={<ResumeBuilder />} />
-          </Route>
-        </Routes>
-      </TooltipProvider>
-      <Footer />
+      <ErrorBoundary>
+        <TooltipProvider delayDuration={300}>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route element={<GuestRoute />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/logged-out" element={<LoggedOutPage />} />
+            </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/templates" element={<TemplateSelectionPage />} />
+              <Route path="/build-resume" element={<ResumeBuilder />} />
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </TooltipProvider>
+        <Footer />
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }

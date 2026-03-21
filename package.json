@@ -11,7 +11,9 @@
     "prepare": "husky",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "deploy:frontend": "npm run build && firebase deploy --only hosting",
+    "deploy:frontend:preview": "npm run build && firebase hosting:channel:deploy preview"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.7",
@@ -42,6 +44,8 @@
     "react-router-dom": "^7.13.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
+    "use-debounce": "^10.1.0",
+    "vercel": "^50.34.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {
