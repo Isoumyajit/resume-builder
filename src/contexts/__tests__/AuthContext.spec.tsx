@@ -1,4 +1,5 @@
 import { render, screen, act } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { AuthProvider, useAuth } from "../AuthContext";
 import {
   onAuthStateChanged,
@@ -13,6 +14,12 @@ import {
 // Activate manual mocks — implementations live in __mocks__/ directories.
 jest.mock("firebase/auth");
 jest.mock("@/config/firebase");
+
+const mockNavigate = jest.fn();
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: () => mockNavigate,
+}));
 
 const mockOnAuthStateChanged = onAuthStateChanged as jest.Mock;
 const mockSignInWithEmailAndPassword = signInWithEmailAndPassword as jest.Mock;
@@ -49,9 +56,11 @@ function TestConsumer({
 
 function renderWithAuth(onRender: (ctx: ReturnType<typeof useAuth>) => void) {
   return render(
-    <AuthProvider>
-      <TestConsumer onRender={onRender} />
-    </AuthProvider>,
+    <MemoryRouter>
+      <AuthProvider>
+        <TestConsumer onRender={onRender} />
+      </AuthProvider>
+    </MemoryRouter>,
   );
 }
 
@@ -156,11 +165,12 @@ describe("AuthContext methods", () => {
     expect(mockSignInWithPopup).toHaveBeenCalledWith({}, {});
   });
 
-  it("signOut should call firebaseSignOut", async () => {
+  it("signOut should call firebaseSignOut and navigate to /logged-out", async () => {
     await act(async () => {
       await capturedCtx.signOut();
     });
     expect(mockSignOut).toHaveBeenCalledWith({});
+    expect(mockNavigate).toHaveBeenCalledWith("/logged-out", { replace: true });
   });
 
   it("resetPassword should call sendPasswordResetEmail", async () => {
