@@ -5,6 +5,15 @@
 
 require("dotenv").config();
 
+function parseCorsOrigins(envValue) {
+  if (!envValue) return null;
+  const origins = envValue
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return origins.length === 1 ? origins[0] : origins;
+}
+
 const API_CONFIG = {
   VERSION: process.env.API_VERSION || "v1",
   BASE_URL:
@@ -15,8 +24,9 @@ const API_CONFIG = {
   NODE_ENV: process.env.NODE_ENV || "development",
 
   CORS: {
-    ORIGIN: process.env.FRONTEND_URL || "http://localhost:5173",
-    CREDENTIALS: true,
+    origin:
+      parseCorsOrigins(process.env.FRONTEND_URL) || "http://localhost:5173",
+    credentials: true,
   },
 
   RATE_LIMIT: {
@@ -51,7 +61,7 @@ const VERSION_INFO = {
 function validateConfig() {
   console.log("✅ API configuration validated");
   console.log(`   PORT: ${API_CONFIG.PORT}`);
-  console.log(`   CORS Origin: ${API_CONFIG.CORS.ORIGIN}`);
+  console.log(`   CORS Origin: ${API_CONFIG.CORS.origin}`);
 }
 
 // Export configuration

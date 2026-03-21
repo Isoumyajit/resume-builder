@@ -4,7 +4,12 @@
  */
 
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  browserSessionPersistence,
+  setPersistence,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Firebase configuration from environment variables
@@ -34,8 +39,10 @@ for (const key of requiredKeys) {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth
+// Initialize Firebase Auth with session-only persistence so closing the
+// browser/tab immediately destroys the Firebase session.
 export const auth = getAuth(app);
+setPersistence(auth, browserSessionPersistence).catch(console.error);
 
 // Initialize Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();

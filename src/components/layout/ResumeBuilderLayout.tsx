@@ -5,7 +5,7 @@ import { PreviewPanel } from "./PreviewPanel";
 import type { ResumeBuilderLayoutProps } from "@/interfaces/components";
 
 export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
-  const { form, pdf, actions, templateId } = state;
+  const { form, pdf, actions, templateId, autoSaveStatus } = state;
 
   return (
     <div
@@ -16,6 +16,7 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
         onDownload={actions.downloadPdf}
         canDownload={!!pdf.url}
         isGenerating={pdf.isLoading}
+        autoSaveStatus={autoSaveStatus}
       />
 
       <main className="rb-app__main flex-1 overflow-hidden">

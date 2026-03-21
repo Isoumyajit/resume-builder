@@ -4,7 +4,7 @@
 # Orchestrates the complete CI/CD pipeline for pushes to main:
 #   1. Check if code changed (skip pipeline for docs-only commits)
 #   2. CodeQL + Unit Tests (in parallel)
-#   3. Deploy to GCP Cloud Run (only if both pass)
+#   3. Deploy backend to Cloud Run + frontend to Vercel (only if both pass)
 #
 # Skipped entirely for changes to: docs/, *.md, LICENSE, .gitignore
 # =============================================================================
@@ -66,6 +66,9 @@ jobs:
       VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
       VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
       VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   # ===========================================================================
   # Pipeline Summary

@@ -7,6 +7,7 @@ import type { UseFormReturn, UseFieldArrayReturn } from "react-hook-form";
 import type { ResumeFormData } from "@/lib/validation";
 import type { useResumeBuilder } from "@/hooks/useResumeBuilder";
 import type { LucideIcon } from "lucide-react";
+import type { AutoSaveStatus } from "@/hooks/useAutosave";
 
 // Header component props
 export interface HeaderProps {
@@ -14,6 +15,7 @@ export interface HeaderProps {
   onDownload?: () => void;
   canDownload?: boolean;
   isGenerating?: boolean;
+  autoSaveStatus?: AutoSaveStatus;
 }
 
 // SplitPane component props
