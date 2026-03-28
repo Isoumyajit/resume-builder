@@ -13,6 +13,7 @@ export function ResumeBuilderLayout({ state }: ResumeBuilderLayoutProps) {
       className="rb-app h-[calc(100vh-38px)] flex flex-col bg-gray-200 dark:bg-gray-900"
     >
       <Header
+        onGenerate={actions.generatePdf}
         onDownload={actions.downloadPdf}
         canDownload={!!pdf.url}
         isGenerating={pdf.isLoading}

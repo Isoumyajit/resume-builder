@@ -27,6 +27,7 @@ class ResumeData {
     this.updatedAt = data.updatedAt || new Date();
     this.sectionOrder = data.sectionOrder;
     this.templateType = data?.templateType || "classic";
+    this.accentColor = data?.accentColor || "";
   }
 
   transformedAchievements() {
@@ -131,6 +132,7 @@ class ResumeData {
       },
       sectionOrder: this.sectionOrder,
       templateType: this.templateType,
+      accentColor: this.accentColor,
     };
   }
 

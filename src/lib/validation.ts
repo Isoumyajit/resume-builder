@@ -199,6 +199,13 @@ export const resumeSchema = z.object({
   profileLinks: profileLinksSchema.optional().default({}),
   skills: skillsSchema,
   achievements: z.array(achievementSchema).optional().default([]),
+  accentColor: z
+    .string()
+    .refine((v) => v === "" || /^#[0-9A-Fa-f]{6}$/.test(v), {
+      message: "Must be a valid hex color",
+    })
+    .optional()
+    .default(""),
   sectionOrder: z
     .array(
       z.enum([

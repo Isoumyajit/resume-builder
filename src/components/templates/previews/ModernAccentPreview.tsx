@@ -88,6 +88,24 @@ export function ModernAccentPreview({ scale = 1 }: ModernAccentPreviewProps) {
         />
       </Section>
 
+      <Section title="Education" scale={scale}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "baseline",
+          }}
+        >
+          <span style={{ fontWeight: 700, fontSize: pt(5.5), color: ACCENT }}>
+            MIT
+          </span>
+          <span style={{ fontStyle: "italic", fontSize: pt(5), color: "#666" }}>
+            2014 — 2018
+          </span>
+        </div>
+        <div style={{ fontSize: pt(5.5) }}>B.S. Computer Science</div>
+      </Section>
+
       <Section title="Skills" scale={scale}>
         <p>
           <strong>Frontend:</strong> React, Vue, TypeScript &nbsp;

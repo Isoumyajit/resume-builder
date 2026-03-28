@@ -14,7 +14,7 @@ const executiveOverrides = `
 
   ${T} .header .contact a,
   ${T} .header .links .link {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
   }
 
   /* ── Sections ───────────────────────────────────────────────────── */
@@ -22,8 +22,8 @@ const executiveOverrides = `
     justify-content: center;
     text-align: center;
     text-transform: uppercase;
-    color: ${ACCENT};
-    border-bottom: 2px solid ${ACCENT};
+    color: var(--accent, ${ACCENT});
+    border-bottom: 2px solid var(--accent, ${ACCENT});
     font-size: 12pt;
     font-weight: 700;
     letter-spacing: 1px;
@@ -40,25 +40,25 @@ const executiveOverrides = `
 
   /* ── Experience ─────────────────────────────────────────────────── */
   ${T} .experience-title {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
   }
 
   ${T} .experience-company .experience-title {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
     font-weight: 700;
   }
 
   ${T} .experience-tech-stack {
-    border-bottom-color: ${ACCENT};
+    border-bottom-color: var(--accent, ${ACCENT});
   }
 
   /* ── Projects ───────────────────────────────────────────────────── */
   ${T} .project-title {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
   }
 
   ${T} .project-tech-stack {
-    border-bottom-color: ${ACCENT};
+    border-bottom-color: var(--accent, ${ACCENT});
   }
 `;
 

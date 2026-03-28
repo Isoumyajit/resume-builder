@@ -76,6 +76,7 @@ const defaultValues: ResumeFormData = {
     other: "",
   },
   achievements: [],
+  accentColor: "",
   sectionOrder: loadSectionOrder(),
 };
 

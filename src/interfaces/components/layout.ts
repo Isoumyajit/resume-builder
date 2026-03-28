@@ -9,16 +9,15 @@ import type { useResumeBuilder } from "@/hooks/useResumeBuilder";
 import type { LucideIcon } from "lucide-react";
 import type { AutoSaveStatus } from "@/hooks/useAutosave";
 
-// Header component props
 export interface HeaderProps {
   subtitle?: string;
+  onGenerate?: () => void;
   onDownload?: () => void;
   canDownload?: boolean;
   isGenerating?: boolean;
   autoSaveStatus?: AutoSaveStatus;
 }
 
-// SplitPane component props
 export interface SplitPaneProps {
   leftPanel: ReactNode;
   rightPanel: ReactNode;
@@ -27,7 +26,6 @@ export interface SplitPaneProps {
   minRightSize?: number;
 }
 
-// ResumeFormPanel component props
 export interface ResumeFormPanelProps {
   form: UseFormReturn<ResumeFormData>;
   experienceArray: UseFieldArrayReturn<ResumeFormData, "experience">;
@@ -51,14 +49,12 @@ export interface ResumeFormPanelProps {
   templateId: string;
 }
 
-// PreviewPanel component props
 export interface PreviewPanelProps {
   pdfUrl: string | null;
   isLoading: boolean;
   error: string | null;
 }
 
-// ResumeBuilderLayout component props
 export type ResumeBuilderState = ReturnType<typeof useResumeBuilder>;
 
 export interface ResumeBuilderLayoutProps {

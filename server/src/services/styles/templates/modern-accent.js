@@ -19,7 +19,7 @@ const modernAccentOverrides = `
   }
 
   ${T} .header .name {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
     font-weight: 700;
     font-size: 18pt;
   }
@@ -50,7 +50,7 @@ const modernAccentOverrides = `
 
   ${T} .header .contact a,
   ${T} .header .links .link {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
   }
 
   /* ── Header divider ─────────────────────────────────────────────── */
@@ -69,12 +69,13 @@ const modernAccentOverrides = `
 
   ${T} .section-title {
     border-bottom: none;
-    border-left: 2px solid ${ACCENT};
+    border-left: 2px solid var(--accent, ${ACCENT});
     padding-left: 8px;
     text-transform: uppercase;
     font-size: 12pt;
     font-weight: 700;
     letter-spacing: 0.5px;
+    color: var(--accent, ${ACCENT});
   }
 
   ${T} .section-title .material-symbols-outlined {
@@ -88,11 +89,11 @@ const modernAccentOverrides = `
 
   /* ── Experience ─────────────────────────────────────────────────── */
   ${T} .experience-title {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
   }
 
   ${T} .experience-company .experience-title {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
     font-weight: 700;
   }
 
@@ -107,7 +108,7 @@ const modernAccentOverrides = `
 
   /* ── Projects ───────────────────────────────────────────────────── */
   ${T} .project-title {
-    color: ${ACCENT};
+    color: var(--accent, ${ACCENT});
   }
 `;
 

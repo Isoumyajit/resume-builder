@@ -206,13 +206,15 @@ describe("generateHtmlTemplate", () => {
     it("includes modern-accent style overrides", () => {
       const data = { ...makeFullData(), templateType: "modern-accent" };
       const html = generateHtmlTemplate(data);
-      expect(html).toContain("border-left: 2px solid #2563EB");
+      expect(html).toContain("border-left: 2px solid var(--accent, #2563EB)");
       expect(html).toContain("text-transform: uppercase");
     });
 
     it("does not include modern-accent overrides for classic", () => {
       const html = generateHtmlTemplate(makeFullData());
-      expect(html).not.toContain("border-left: 2px solid #2563EB");
+      expect(html).not.toContain(
+        "border-left: 2px solid var(--accent, #2563EB)",
+      );
     });
 
     it("escapes HTML in templateType", () => {

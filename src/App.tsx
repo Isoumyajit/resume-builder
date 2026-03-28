@@ -16,51 +16,54 @@ import { LandingPage } from "@/components/landing/LandingPage";
 import { TemplateSelectionPage } from "@/components/templates";
 import "./App.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { TemplateProvider, useTemplate } from "@/contexts/TemplateContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Footer from "./components/layout/Footer";
-
-const TEMPLATE_STORAGE_KEY = "rb-template-id";
 
 function ResumeBuilder() {
   const location = useLocation();
   const stateTemplateId = (location.state as { templateId?: string } | null)
     ?.templateId;
 
-  const templateId =
-    stateTemplateId ?? localStorage.getItem(TEMPLATE_STORAGE_KEY) ?? "classic";
+  const { setTemplateId } = useTemplate();
 
   useEffect(() => {
     if (stateTemplateId) {
-      localStorage.setItem(TEMPLATE_STORAGE_KEY, stateTemplateId);
+      setTemplateId(stateTemplateId);
     }
-  }, [stateTemplateId]);
+  }, [stateTemplateId, setTemplateId]);
 
-  const resumeBuilderState = useResumeBuilder(templateId);
+  const resumeBuilderState = useResumeBuilder();
   return <ResumeBuilderLayout state={resumeBuilderState} />;
 }
 
 function App() {
   return (
     <ThemeProvider>
-      <ErrorBoundary>
-        <TooltipProvider delayDuration={300}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route element={<GuestRoute />}>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignUpPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/logged-out" element={<LoggedOutPage />} />
-            </Route>
-            <Route element={<ProtectedRoute />}>
-              <Route path="/templates" element={<TemplateSelectionPage />} />
-              <Route path="/build-resume" element={<ResumeBuilder />} />
-            </Route>
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </TooltipProvider>
-        <Footer />
-      </ErrorBoundary>
+      <TemplateProvider>
+        <ErrorBoundary>
+          <TooltipProvider delayDuration={300}>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route element={<GuestRoute />}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignUpPage />} />
+                <Route
+                  path="/forgot-password"
+                  element={<ForgotPasswordPage />}
+                />
+                <Route path="/logged-out" element={<LoggedOutPage />} />
+              </Route>
+              <Route element={<ProtectedRoute />}>
+                <Route path="/templates" element={<TemplateSelectionPage />} />
+                <Route path="/build-resume" element={<ResumeBuilder />} />
+              </Route>
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </TooltipProvider>
+          <Footer />
+        </ErrorBoundary>
+      </TemplateProvider>
     </ThemeProvider>
   );
 }

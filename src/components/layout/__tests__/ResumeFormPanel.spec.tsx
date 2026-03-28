@@ -29,7 +29,7 @@ function createDefaultProps(
 ): ResumeFormPanelProps {
   return {
     templateId: "modern-accent",
-    form: {} as never,
+    form: { watch: jest.fn(() => ""), setValue: jest.fn() } as never,
     experienceArray: {} as never,
     educationArray: {} as never,
     projectsArray: {} as never,

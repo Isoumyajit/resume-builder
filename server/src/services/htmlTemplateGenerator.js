@@ -36,6 +36,15 @@ const DEFAULT_SECTION_RENDERER = [
   "achievements",
 ];
 
+const VALID_HEX = /^#[0-9A-Fa-f]{6}$/;
+
+function getAccentOverride(accentColor) {
+  if (VALID_HEX.test(accentColor)) {
+    return `<style>body { --accent: ${accentColor}; }</style>`;
+  }
+  return "";
+}
+
 /**
  * Generate complete HTML template from resume data.
  */
@@ -50,6 +59,7 @@ function generateHtmlTemplate(data) {
     skills = {},
     achievements = [],
     templateType = "classic",
+    accentColor = "",
   } = data;
   const orders = Array.isArray(data.sectionOrder)
     ? data.sectionOrder
@@ -72,6 +82,7 @@ function generateHtmlTemplate(data) {
     ${getFontImports(templateType)}
     ${getAllStyles(templateType)}
   </style>
+  ${getAccentOverride(accentColor)}
 </head>
 <body data-template="${escapeHtml(templateType)}">
   <div class="container">

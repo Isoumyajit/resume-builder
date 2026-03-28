@@ -1,10 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { DOWNLOAD_BUTTON_TEXT, Header, SUBTITLE, TITLE } from "../Header";
+import {
+  DOWNLOAD_BUTTON_TEXT,
+  GENERATE_BUTTON_TEXT,
+  GENERATING_BUTTON_TEXT,
+  Header,
+  SUBTITLE,
+  TITLE,
+} from "../Header";
 import type { HeaderProps } from "@/interfaces/components/layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { TemplateProvider } from "@/contexts/TemplateContext";
 import { signOut as firebaseSignOut } from "firebase/auth";
 
 jest.mock("firebase/auth");
@@ -14,6 +22,7 @@ const mockSignOut = firebaseSignOut as jest.Mock;
 
 function renderHeader(props = {}) {
   const defaultProps = {
+    onGenerate: jest.fn(),
     onDownload: jest.fn(),
     canDownload: true,
     isGenerating: false,
@@ -24,9 +33,11 @@ function renderHeader(props = {}) {
   return render(
     <MemoryRouter>
       <AuthProvider>
-        <ThemeProvider defaultTheme="light">
-          <Header {...mergedProps} />
-        </ThemeProvider>
+        <TemplateProvider>
+          <ThemeProvider defaultTheme="light">
+            <Header {...mergedProps} />
+          </ThemeProvider>
+        </TemplateProvider>
       </AuthProvider>
     </MemoryRouter>,
   );
@@ -41,8 +52,12 @@ describe("Header Component should be rendered correctly", () => {
     expect(screen.getByText(SUBTITLE)).toBeInTheDocument();
   });
 
+  it("should render the generate button", () => {
+    expect(screen.getByText(GENERATE_BUTTON_TEXT)).toBeInTheDocument();
+  });
+
   it("should render the download button", () => {
-    expect(screen.getByText(DOWNLOAD_BUTTON_TEXT)).toBeInTheDocument();
+    expect(screen.getByLabelText(DOWNLOAD_BUTTON_TEXT)).toBeInTheDocument();
   });
 
   it("should render the theme toggle", () => {
@@ -52,26 +67,54 @@ describe("Header Component should be rendered correctly", () => {
   });
 });
 
-describe("Header component should be functioning correctly", () => {
-  it("should call the onDownload function when the download button is clicked", async () => {
+describe("Generate button", () => {
+  it("should call onGenerate when clicked", async () => {
+    const user = userEvent.setup();
+    const onGenerateMock = jest.fn();
+    renderHeader({ onGenerate: onGenerateMock });
+    await user.click(screen.getByText(GENERATE_BUTTON_TEXT));
+    expect(onGenerateMock).toHaveBeenCalled();
+  });
+
+  it("should show generating text when isGenerating is true", () => {
+    renderHeader({ isGenerating: true });
+    expect(screen.getByText(GENERATING_BUTTON_TEXT)).toBeInTheDocument();
+  });
+
+  it("should be disabled when isGenerating is true", () => {
+    renderHeader({ isGenerating: true });
+    expect(screen.getByText(GENERATING_BUTTON_TEXT)).toBeDisabled();
+  });
+});
+
+describe("Download button", () => {
+  it("should call onDownload when clicked", async () => {
     const user = userEvent.setup();
     const onDownloadMock = jest.fn();
-    renderHeader({ onDownload: onDownloadMock });
-    const downloadButton = screen.getByText(DOWNLOAD_BUTTON_TEXT);
-    await user.click(downloadButton);
+    renderHeader({ onGenerate: jest.fn(), onDownload: onDownloadMock });
+    await user.click(screen.getByLabelText(DOWNLOAD_BUTTON_TEXT));
     expect(onDownloadMock).toHaveBeenCalled();
   });
 
-  it("should disable the download button when the canDownload prop is false", () => {
+  it("should be disabled when canDownload is false", () => {
     renderHeader({ canDownload: false });
-    const downloadButton = screen.getByText(DOWNLOAD_BUTTON_TEXT);
-    expect(downloadButton).toBeDisabled();
+    expect(screen.getByLabelText(DOWNLOAD_BUTTON_TEXT)).toBeDisabled();
   });
 
-  it("should disable the download button when the isGenerating prop is true", () => {
+  it("should be disabled when isGenerating is true", () => {
     renderHeader({ isGenerating: true });
-    const downloadButton = screen.getByText(DOWNLOAD_BUTTON_TEXT);
-    expect(downloadButton).toBeDisabled();
+    expect(screen.getByLabelText(DOWNLOAD_BUTTON_TEXT)).toBeDisabled();
+  });
+
+  it("should rate-limit rapid clicks", async () => {
+    const user = userEvent.setup();
+    const onDownloadMock = jest.fn();
+    renderHeader({ onGenerate: jest.fn(), onDownload: onDownloadMock });
+    const btn = screen.getByLabelText(DOWNLOAD_BUTTON_TEXT);
+    await user.click(btn);
+    await user.click(btn);
+    await user.click(btn);
+    expect(onDownloadMock).toHaveBeenCalledTimes(1);
   });
 });
 

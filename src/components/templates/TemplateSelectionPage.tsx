@@ -2,12 +2,15 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout";
 import { templates } from "./templateConfig";
 import { TemplateCard } from "./TemplateCard";
+import { useTemplate } from "@/contexts/TemplateContext";
 
 export function TemplateSelectionPage() {
   const navigate = useNavigate();
+  const { templateId, setTemplateId } = useTemplate();
 
   function selectTemplate(templateId: string) {
-    navigate("/build-resume", { state: { templateId } });
+    setTemplateId(templateId);
+    navigate("/build-resume");
   }
 
   return (
@@ -32,6 +35,7 @@ export function TemplateSelectionPage() {
                 key={template.id}
                 template={template}
                 onSelect={selectTemplate}
+                isSelected={template.id === templateId}
               />
             ))}
           </div>

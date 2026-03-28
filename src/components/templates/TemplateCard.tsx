@@ -12,9 +12,14 @@ import type { TemplateConfig } from "./templateConfig";
 interface TemplateCardProps {
   template: TemplateConfig;
   onSelect: (id: string) => void;
+  isSelected?: boolean;
 }
 
-export function TemplateCard({ template, onSelect }: TemplateCardProps) {
+export function TemplateCard({
+  template,
+  onSelect,
+  isSelected,
+}: TemplateCardProps) {
   const [enlarged, setEnlarged] = useState(false);
   const Preview = template.Preview;
 
@@ -52,7 +57,11 @@ export function TemplateCard({ template, onSelect }: TemplateCardProps) {
             <Maximize2 className="h-3.5 w-3.5" />
           </button>
 
-          <div className="absolute bottom-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white opacity-0 shadow-sm transition-opacity duration-200 group-hover:opacity-100 dark:bg-indigo-500">
+          <div
+            className={`absolute bottom-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white shadow-sm transition-opacity duration-200 dark:bg-indigo-500 ${
+              isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            }`}
+          >
             <Check className="h-3 w-3" />
           </div>
         </div>
@@ -61,9 +70,6 @@ export function TemplateCard({ template, onSelect }: TemplateCardProps) {
           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {template.name}
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-            {template.description}
-          </p>
         </div>
       </div>
 
